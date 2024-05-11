@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa
-  * @version V0.0.0
-  * @date    10-May-2024
-  * @brief   Default main function.
+  * @version V0.0.1
+  * @date    11-May-2024
+  * @brief   R_B main function.
   ******************************************************************************
 */
 
@@ -17,7 +17,7 @@
 using std::sin;
 using std::cos;
 
-constexpr double SPD = 1.0;
+constexpr double SPD = 25.0;
 
 //ロボマスモータのエンコーダ受信用
 class ROBOMAS_Encoder_Data {
@@ -63,6 +63,7 @@ Point abs_rq_p; double rq_theta; //絶対座標系での指定{{x,y},theta}
 Point local_rq_p, mtr_rq_p;
 double direction = 0; //置く向きに合わせて初期値を変える。(0~360)
 ROBOMAS_Encoder_Data enc_data[3];
+short debug1[4],debug2[4],debug3[4];
 Gpio sw;
 
 void can_interrupt(CanRxMsgTypeDef rx);
@@ -73,12 +74,22 @@ void main_interrupt(void);
 void can_interrupt(CanRxMsgTypeDef rx) {
 	if (can_received.rx_stdid == 0x201) {
 		enc_data[0].overwrite(can_received.rx_data);
+		for (int i = 0; i < 4; ++i) {
+			debug1[i] = ((can_received.rx_data[i*2]<<8) | can_received.rx_data[i*2+1]);
+		}
+		debug1[3] = debug1[1]/60;
 	}
 	if (can_received.rx_stdid == 0x202) {
 		enc_data[1].overwrite(can_received.rx_data);
+		for (int i = 0; i < 4; ++i) {
+			debug2[i] = ((can_received.rx_data[i*2]<<8) | can_received.rx_data[i*2+1]);
+		}
 	}
 	if (can_received.rx_stdid == 0x203) {
 		enc_data[2].overwrite(can_received.rx_data);
+		for (int i = 0; i < 4; ++i) {
+			debug3[i] = ((can_received.rx_data[i*2]<<8) | can_received.rx_data[i*2+1]);
+		}
 	}
 }
 
@@ -89,8 +100,8 @@ void get_rq(void) {
 	/* work in progress */
 
 	//test
-	abs_rq_p.x = (sw.read()?0:10)*SPD;
-	abs_rq_p.y = (sw.read()?0:10)*SPD;
+	abs_rq_p.x = (sw.read()?0:1)*SPD;
+	abs_rq_p.y = (sw.read()?0:0)*SPD;
 	rq_theta = 0;
 }
 
