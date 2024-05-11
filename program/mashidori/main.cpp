@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa
-  * @version V0.0.1
+  * @version V0.0.2
   * @date    11-May-2024
   * @brief   R_B main function.
   ******************************************************************************
@@ -66,7 +66,8 @@ ROBOMAS_Encoder_Data enc_data[3];
 short debug1[4],debug2[4],debug3[4];
 Gpio sw;
 
-void can_interrupt(CanRxMsgTypeDef rx);
+void can_interrupt(CanRxMsgTypeDef);
+void stick_resize(double&,double&);
 void get_rq(void);
 void main_interrupt(void);
 
@@ -93,16 +94,33 @@ void can_interrupt(CanRxMsgTypeDef rx) {
 	}
 }
 
+//return -1~1
+void stick_resize(double &x, double &y) {
+	double longer = (abs(x) > abs(y) ? abs(x) : abs(y));
+	double angle = std::atan2(y, x);
+
+	x = cos(angle) * longer / 64;
+	y = sin(angle) * longer / 64;
+}
+
+PS3 ps3;
+PS3_data ps3_data;
 //communicate
 void get_rq(void) {
+	double rqx,rqy,rqt;
 	/*   unavailable    */
 	/*   coming soon    */
 	/* work in progress */
+	ps3.Getdata(&ps3_data);
+	rqx = ps3_data.LxPad;
+	rqy = ps3_data.LyPad;
+	stick_resize(rqx, rqy);
+	rqt = ps3_data.RxPad / 64;
 
 	//test
-	abs_rq_p.x = (sw.read()?0:1)*SPD;
-	abs_rq_p.y = (sw.read()?0:0)*SPD;
-	rq_theta = 0;
+	abs_rq_p.x = rqx*SPD;
+	abs_rq_p.y = rqy*SPD;
+	rq_theta = rqt;
 }
 
 //run every 1ms
@@ -120,19 +138,19 @@ void main_interrupt(void) {
 	//communicate with motor
 	//front
 	mtr_rq_p = local_rq_p;
-	conv.s = static_cast<short>(mtr_rq_p.x);
+	conv.s = static_cast<short>(mtr_rq_p.x + rq_theta*SPD);
 	send_data[0] = conv.u[0];
 	send_data[1] = conv.u[1];
 	//left
 	mtr_rq_p = local_rq_p;
 	mtr_rq_p.rotate(-120);
-	conv.s = static_cast<short>(mtr_rq_p.x);
+	conv.s = static_cast<short>(mtr_rq_p.x + rq_theta*SPD);
 	send_data[2] = conv.u[0];
 	send_data[3] = conv.u[1];
 	//right
 	mtr_rq_p = local_rq_p;
 	mtr_rq_p.rotate(-240);
-	conv.s = static_cast<short>(mtr_rq_p.x);
+	conv.s = static_cast<short>(mtr_rq_p.x + rq_theta*SPD);
 	send_data[4] = conv.u[0];
 	send_data[5] = conv.u[1];
 	//none
@@ -150,6 +168,7 @@ int main(void)
 	sken_system.startCanCommunicate(B13,B12,CAN_2);
 	sken_system.addCanRceiveInterruptFunc(CAN_2,&can_received,can_interrupt);
 
+	ps3.StartRecive();
 	sken_system.addTimerInterruptFunc(main_interrupt,0,1);
 
 	while (true) {}
