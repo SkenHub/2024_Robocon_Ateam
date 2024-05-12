@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa
-  * @version V0.0.2
-  * @date    11-May-2024
+  * @version V0.1.0
+  * @date    12-May-2024
   * @brief   R_B main function.
   ******************************************************************************
 */
@@ -17,7 +17,7 @@
 using std::sin;
 using std::cos;
 
-constexpr double SPD = 25.0;
+constexpr double SPD = 10.0;
 
 //ロボマスモータのエンコーダ受信用
 class ROBOMAS_Encoder_Data {
@@ -75,22 +75,12 @@ void main_interrupt(void);
 void can_interrupt(CanRxMsgTypeDef rx) {
 	if (can_received.rx_stdid == 0x201) {
 		enc_data[0].overwrite(can_received.rx_data);
-		for (int i = 0; i < 4; ++i) {
-			debug1[i] = ((can_received.rx_data[i*2]<<8) | can_received.rx_data[i*2+1]);
-		}
-		debug1[3] = debug1[1]/60;
 	}
 	if (can_received.rx_stdid == 0x202) {
 		enc_data[1].overwrite(can_received.rx_data);
-		for (int i = 0; i < 4; ++i) {
-			debug2[i] = ((can_received.rx_data[i*2]<<8) | can_received.rx_data[i*2+1]);
-		}
 	}
 	if (can_received.rx_stdid == 0x203) {
 		enc_data[2].overwrite(can_received.rx_data);
-		for (int i = 0; i < 4; ++i) {
-			debug3[i] = ((can_received.rx_data[i*2]<<8) | can_received.rx_data[i*2+1]);
-		}
 	}
 }
 
@@ -107,7 +97,7 @@ PS3 ps3;
 PS3_data ps3_data;
 //communicate
 void get_rq(void) {
-	double rqx,rqy,rqt;
+	double rqx,rqy;
 	/*   unavailable    */
 	/*   coming soon    */
 	/* work in progress */
@@ -115,12 +105,11 @@ void get_rq(void) {
 	rqx = ps3_data.LxPad;
 	rqy = ps3_data.LyPad;
 	stick_resize(rqx, rqy);
-	rqt = ps3_data.RxPad / 64;
 
 	//test
 	abs_rq_p.x = rqx*SPD;
 	abs_rq_p.y = rqy*SPD;
-	rq_theta = rqt;
+	rq_theta = ps3_data.RxPad / 63.0;
 }
 
 //run every 1ms
@@ -134,23 +123,27 @@ void main_interrupt(void) {
 	//localize rq
 	local_rq_p = abs_rq_p;
 	local_rq_p.rotate(-direction);
+	debug1[3] = 10;
 
 	//communicate with motor
 	//front
 	mtr_rq_p = local_rq_p;
 	conv.s = static_cast<short>(mtr_rq_p.x + rq_theta*SPD);
+		debug1[0] = conv.s;
 	send_data[0] = conv.u[0];
 	send_data[1] = conv.u[1];
 	//left
 	mtr_rq_p = local_rq_p;
 	mtr_rq_p.rotate(-120);
 	conv.s = static_cast<short>(mtr_rq_p.x + rq_theta*SPD);
+	debug1[1] = conv.s;
 	send_data[2] = conv.u[0];
 	send_data[3] = conv.u[1];
 	//right
 	mtr_rq_p = local_rq_p;
 	mtr_rq_p.rotate(-240);
 	conv.s = static_cast<short>(mtr_rq_p.x + rq_theta*SPD);
+	debug1[2] = conv.s;
 	send_data[4] = conv.u[0];
 	send_data[5] = conv.u[1];
 	//none
@@ -166,7 +159,7 @@ int main(void)
 	sw.init(C13,INPUT_PULLUP);
 
 	sken_system.startCanCommunicate(B13,B12,CAN_2);
-	sken_system.addCanRceiveInterruptFunc(CAN_2,&can_received,can_interrupt);
+	//sken_system.addCanRceiveInterruptFunc(CAN_2,&can_received,can_interrupt);
 
 	ps3.StartRecive();
 	sken_system.addTimerInterruptFunc(main_interrupt,0,1);
