@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa
-  * @version V0.1.1
+  * @version V0.2.0
   * @date    15-May-2024
   * @brief   R_B main function.
   ******************************************************************************
@@ -13,6 +13,8 @@
 #include "sken_library/include.h"
 
 #include <cmath>
+
+//#define ENABLE_SBDBT_PS3
 
 using std::sin;
 using std::cos;
@@ -68,8 +70,13 @@ ROBOMAS_Encoder_Data enc_data[3];
 short debug1[4],debug2[4],debug3[4];
 Gpio sw;
 
-void can_interrupt(CanRxMsgTypeDef);
+#ifdef ENABLE_SBDBT_PS3
+PS3 ps3;
+PS3_data ps3_data;
 void stick_resize(double&,double&);
+#endif
+
+void can_interrupt(CanRxMsgTypeDef);
 void get_rq(void);
 void main_interrupt(void);
 
@@ -86,6 +93,7 @@ void can_interrupt(CanRxMsgTypeDef rx) {
 	}
 }
 
+#ifdef ENABLE_SBDBT_PS3
 //return -1~1
 void stick_resize(double &x, double &y) {
 	double longer = (abs(x) > abs(y) ? abs(x) : abs(y));
@@ -94,27 +102,25 @@ void stick_resize(double &x, double &y) {
 	x = cos(angle) * longer / 64;
 	y = sin(angle) * longer / 64;
 }
+#endif
 
-/*
-PS3 ps3;
-PS3_data ps3_data;
-*/
 //communicate
 void get_rq(void) {
 	double rqx,rqy;
 	/*   unavailable    */
 	/*   coming soon    */
 	/* work in progress */
-	/*
+#ifdef ENABLE_SBDBT_PS3
 	ps3.Getdata(&ps3_data);
 	rqx = ps3_data.LxPad;
 	rqy = ps3_data.LyPad;
 	stick_resize(rqx, rqy);
-	*/
+	rq_theta = ps3_data.RxPad/64*SPD;
+#else
 	rqx = (sw.read()?0:1);
 	rqy = (sw.read()?1:0);
 	rq_theta = 0;
-
+#endif
 	//test
 	abs_rq_p.x = rqx*SPD;
 	abs_rq_p.y = rqy*SPD;
@@ -130,6 +136,7 @@ void main_interrupt(void) {
 	get_rq();
 
 	//localize rq
+	direction += static_cast<double>(enc_data[0][1]+enc_data[1][1]+enc_data[2][1])/3.0/2160.0*TEST;
 	local_rq_p = abs_rq_p;
 	local_rq_p.rotate(-direction);
 
@@ -176,7 +183,10 @@ int main(void)
 	sken_system.startCanCommunicate(B13,B12,CAN_2);
 	sken_system.addCanRceiveInterruptFunc(CAN_2,&can_received,can_interrupt);
 
-	//ps3.StartRecive();
+#ifdef ENABLE_SBDBT_PS3
+	ps3.StartRecive();
+#endif
+
 	sken_system.addTimerInterruptFunc(main_interrupt,0,1);
 
 	while (true) {}
