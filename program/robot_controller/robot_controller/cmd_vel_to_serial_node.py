@@ -1,9 +1,9 @@
-# cmd_vel_to_serial_node.py
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
 
 import serial
+import struct
 
 class CmdVelToSerialNode(Node):
     def __init__(self):
@@ -14,7 +14,9 @@ class CmdVelToSerialNode(Node):
 
     def listener_callback(self, msg):
         self.get_logger().info(f"Received: {msg.data}")
-        send_data = bytes([int(d * 100) for d in msg.data])  # データをバイト配列に変換
+        
+        # Float32MultiArrayをバイト配列に変換（各値を4バイトの浮動小数点数としてエンコード）
+        send_data = struct.pack('fff', *msg.data)
         self.ser.write(send_data)
         self.get_logger().info(f"Sent to Serial: {list(send_data)}")
 
