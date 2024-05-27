@@ -16,11 +16,11 @@ class ControllerNode(Node):
 
         # 地点の座標を設定
         self.locations = {
-            '1': [1500, 1500],
-            '2': [5000, 3000],
-            '3': [5000, 3000]
+            '1': [1500, 1500, 0],  # [x, y, theta]
+            '2': [5000, 3000, 0],
+            '3': [5000, 3000, 0]
         }
-        self.current_position = [0, 0, 0]  # 初期位置 (x, y, θ)
+        self.current_position = [0, 0, 0]  # 初期位置 [x, y, theta]
 
     def listener_callback(self, msg):
         # 受け取ったデータをパース
@@ -37,8 +37,8 @@ class ControllerNode(Node):
             self.get_logger().error(f"Failed to parse JSON: {str(e)}")
 
     def move_to_target(self, target):
-        # 目標地点までの移動計算 (単純な直線移動の例)
-        x, y = target
+        # 目標地点までの移動計算
+        x, y, theta = target
         dx = x - self.current_position[0]
         dy = y - self.current_position[1]
         direction = math.atan2(dy, dx)
@@ -46,7 +46,7 @@ class ControllerNode(Node):
 
         # 移動指示をパブリッシュ
         msg = Float32MultiArray()
-        msg.data = [distance, direction]
+        msg.data = [distance, direction, theta]
         self.publisher_.publish(msg)
         self.get_logger().info(f"Moving to {target} with command: {msg.data}")
 
