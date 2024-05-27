@@ -6,19 +6,19 @@
 ## システム構成
 ### ノード構成
 - `web_socket_node`：WebSocket通信を介してコントローラーから指示を受け取り、ROS2トピックにパブリッシュします。
-- `controller_node`：WebSocketノードからの指示を受け取り、ロボットを指定された地点に移動させるための速度と方向を計算し、シリアル通信ノードに送信します。
+- `controller_node`：WebSocketノードからの指示を受け取り、ロボットを指定された地点に移動させるための速度、方向、および角度を計算し、シリアル通信ノードに送信します。
 - `cmd_vel_to_serial_node`：`controller_node`からの移動指示を受け取り、シリアル通信を介してマイコンに送信します。
 - `serial_to_position_node`：マイコンから自己位置データを受信し、ROS2トピックにパブリッシュします。
 
 ## 通信の概要
 ### トピック
 - `/web_socket_pub` (`std_msgs/String`)：WebSocketノードからの指示をパブリッシュ。
-- `/cmd_vel` (`std_msgs/Float32MultiArray`)：`controller_node`が計算した移動指示をパブリッシュ。
+- `/cmd_vel` (`std_msgs/Float32MultiArray`)：`controller_node`が計算した移動指示（速度、方向、角度）をパブリッシュ。
 - `/robot_position` (`std_msgs/Float32MultiArray`)：`serial_to_position_node`が受信した自己位置をパブリッシュ。
 
 ### メッセージの内容
 - `/web_socket_pub`：JSON形式の文字列。例：`{"point": "1"}`。
-- `/cmd_vel`：速度と方向。例：`[1.0, 0.5]`。
+- `/cmd_vel`：速度、方向、角度。例：`[1.0, 0.5, 0.0]`。
 - `/robot_position`：ロボットの自己位置（x, y, θ）。例：`[1500.0, 1500.0, 0.0]`。
 
 ## ノードの役割
@@ -27,7 +27,7 @@
 - 受け取った指示を`/web_socket_pub`トピックにパブリッシュ。
 
 ### `controller_node`
-- `web_socket_node`からの指示を受け取り、指定された地点に移動するための速度と方向を計算。
+- `web_socket_node`からの指示を受け取り、指定された地点に移動するための速度、方向、および角度を計算。
 - 計算結果を`/cmd_vel`トピックにパブリッシュ。
 
 ### `cmd_vel_to_serial_node`
@@ -111,6 +111,4 @@
 Apache License 2.0
 
 ---
-
-
 
