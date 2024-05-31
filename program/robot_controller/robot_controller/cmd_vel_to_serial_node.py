@@ -14,9 +14,14 @@ class CmdVelToSerialNode(Node):
 
     def listener_callback(self, msg):
         self.get_logger().info(f"Received: {msg.data}")
-        
-        # Float32MultiArrayをバイト配列に変換（各値を4バイトの浮動小数点数としてエンコード）
-        send_data = struct.pack('fff', *msg.data)
+
+        # 速度、方向、角度を整数に変換
+        speed = int(msg.data[0])
+        direction = int(msg.data[1])
+        angle = int(msg.data[2])
+
+        # 整数値をバイト配列に変換
+        send_data = struct.pack('BBB', speed, direction, angle)
         self.ser.write(send_data)
         self.get_logger().info(f"Sent to Serial: {list(send_data)}")
 
