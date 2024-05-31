@@ -41,12 +41,16 @@ class ControllerNode(Node):
         x, y, theta = target
         dx = x - self.current_position[0]
         dy = y - self.current_position[1]
-        direction = math.atan2(dy, dx)
         distance = math.sqrt(dx**2 + dy**2)
+        direction = math.degrees(math.atan2(dy, dx)) % 360
+
+        # 速度を0-100の範囲にスケール
+        max_distance = 5000
+        speed = min(100, (distance / max_distance) * 100)
 
         # 移動指示をパブリッシュ
         msg = Float32MultiArray()
-        msg.data = [distance, direction, theta]
+        msg.data = [speed, direction, theta]
         self.publisher_.publish(msg)
         self.get_logger().info(f"Moving to {target} with command: {msg.data}")
 
