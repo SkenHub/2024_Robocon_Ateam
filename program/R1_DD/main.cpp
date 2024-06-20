@@ -26,35 +26,51 @@ HardwareSerial SerialPC(USART2);
 DataFromPC received;
 DataSTM now;
 
+uint8_t ring[16] = {};
+bool is_read = false;
 void PC_receive(DataFromPC *data) {
-  uint8_t raw[14];
-  SerialPC.readBytes(raw, 14);
-  union {float f; uint8_t u8[4];} conv;
-  
-  for (int i=0; i<4; ++i) conv.u8[i] = raw[0+i];
-  data->move_spd = conv.f;
-  for (int i=0; i<4; ++i) conv.u8[i] = raw[4+i];
-  data->move_dir = conv.f;
-  for (int i=0; i<4; ++i) conv.u8[i] = raw[8+i];
-  data->rot = conv.f;
-  data->field = raw[12];
-  data->action = raw[13];
+  is_read = false;
+  while (SerialPC.available() > 0) {
+    for (int i = 0; i < 15; ++i) ring[i] = ring[i+1];
+    ring[15] = SerialPC.read();
+    if (ring[0]==0xA5 && ring[1]==0xA5) {
+      is_read = true;
+      break;
+    }
+  }
+
+  if (is_read) {
+    union {float f; uint8_t u8[4];} conv;
+
+    for (int i=0; i<4; ++i) conv.u8[i] = ring[2+i];
+    data->move_spd = conv.f;
+    for (int i=0; i<4; ++i) conv.u8[i] = ring[6+i];
+    data->move_dir = conv.f;
+    for (int i=0; i<4; ++i) conv.u8[i] = ring[10+i];
+    data->rot = conv.f;
+    data->field = ring[14];
+    data->action = ring[15];
+
+    now.field = received.field;
+  }
 }
 
 void PC_send(DataSTM data) {
-  uint8_t send_data[14];
+  uint8_t send_data[16];
   union {float f; uint8_t u8[4];} conv;
 
+  send_data[0] = 0xA5;
+  send_data[1] = 0xA5;
   conv.f = data.x;
-  for (int i=0; i<4; ++i) send_data[0+i] = conv.u8[i];
+  for (int i=0; i<4; ++i) send_data[2+i] = conv.u8[i];
   conv.f = data.y;
-  for (int i=0; i<4; ++i) send_data[4+i] = conv.u8[i];
+  for (int i=0; i<4; ++i) send_data[6+i] = conv.u8[i];
   conv.f = data.theta;
-  for (int i=0; i<4; ++i) send_data[8+i] = conv.u8[i];
-  send_data[12] = data.field;
-  send_data[13] = data.action;
+  for (int i=0; i<4; ++i) send_data[10+i] = conv.u8[i];
+  send_data[14] = data.field;
+  send_data[15] = data.action;
 
-  SerialPC.write(send_data, 14);
+  SerialPC.write(send_data, 16);
 }
 
 enum moveType{go=0, stop};
@@ -179,17 +195,18 @@ void setup() {
   SerialPC.begin(9600);
   SerialPC.println(0);
 
+  now.field = 0;
   now.action = 0;
   now.finished = 0;
+  now.theta = 30;
 }
 
 void loop() {
   pass = micros()-before;
   before = micros();
   
-  if (SerialPC.available() >= 14) {
+  if (SerialPC.available() > 0) {
     PC_receive(&received);
-    now.field = received.field;
   }
 
   simulate();
