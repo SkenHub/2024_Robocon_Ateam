@@ -3,8 +3,8 @@
   * @file    main.cpp
   * @author  Tikuwa404
   * @version V0.0.0
-  * @date    23-May-2024
-  * @brief   R1 MDD function.
+  * @date    24-May-2024
+  * @brief   R1 undercarriage function.
   ******************************************************************************
 */
 
@@ -20,11 +20,11 @@
 using std::sin;
 using std::cos;
 
-constexpr double SPD = 10.0;
-constexpr double TIRE_DIAMETER = 1; //[mm]
-constexpr double BODY_DIAMETER = 1; //[mm]
+constexpr const double SPD = 10.0;
+constexpr const double TIRE_DIAMETER = 1; //[mm]
+constexpr const double BODY_DIAMETER = 1; //[mm]
 
-//このファイルの全ての角度、thetaは度数法。
+//このファイルの全ての角度(theta)は度数法。
 class Point {
 public:
 	double x;
@@ -88,16 +88,17 @@ void get_rq(void) {
 	stick_resize(rqx, rqy);
 	rq_theta = ps3_data.RxPad/64*SPD;
 #else
+	//test
 	rqx = (sw.read()?0:1);
 	rqy = (sw.read()?1:0);
 	rq_theta = 0;
 #endif
 
-	//test
 	abs_rq_p.x = rqx*SPD;
 	abs_rq_p.y = rqy*SPD;
 }
 
+double debug[8];
 //run every 1ms
 void main_interrupt(void) {
 	//communicate
@@ -107,12 +108,14 @@ void main_interrupt(void) {
 	//localize rq
 	//direction += static_cast<double>(enc_data[0][1]+enc_data[1][1]+enc_data[2][1])/(3.0*2160.0)*(TIRE_DIAMETER/BODY_DIAMETER)*360;
 	local_rq_p = Point::rotated(abs_rq_p, -direction);
+	debug[0] = local_rq_p.x;
+	debug[1] = local_rq_p.y;
 
 	//communicate with motor
-	mtr_rq[0] = Point::rotated(local_rq_p, -45).x * SPD;
-	mtr_rq[1] = Point::rotated(local_rq_p, 45).x * SPD;
-	mtr_rq[2] = Point::rotated(local_rq_p, 135).x * SPD;
-	mtr_rq[3] = Point::rotated(local_rq_p, -135).x *SPD;
+	mtr_rq[0] = Point::rotated(local_rq_p, -45).x;
+	mtr_rq[1] = Point::rotated(local_rq_p, 45).x;
+	mtr_rq[2] = Point::rotated(local_rq_p, 135).x;
+	mtr_rq[3] = Point::rotated(local_rq_p, -135).x;
 	//mtr_write
 	for(int i = 0; i < 4; ++i) mtr[i].write(static_cast<int>(mtr_rq[i]));
 }
