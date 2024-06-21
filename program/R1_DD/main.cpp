@@ -21,7 +21,7 @@ constexpr uint8_t sw = PC13;
 constexpr uint8_t valve[3] = {PB6, PB7, PB8};
 
 HardwareSerial SerialPC(USART2);
-//HardwareSerial SerialMDD1(PA10,PA9);
+HardwareSerial SerialMDD1(PA10,PA9);
 DataFromPC received;
 DataSTM now;
 
@@ -51,6 +51,7 @@ void PC_receive(DataFromPC *data) {
     data->action = ring[15];
 
     now.field = received.field;
+    now.action = received.action;
   }
 }
 
@@ -75,7 +76,7 @@ void PC_send(DataSTM data) {
 enum moveType{go=0, stop};
 uint32_t before = 0;
 uint32_t pass;
-void MDD1_send(moveType a) {
+void MDD1_simulate(moveType a) {
   if (a == go) {
     now.x += received.move_spd*cos(received.move_dir)*(pass/1'000'000);
     now.y += received.move_spd*sin(received.move_dir)*(pass/1'000'000);
@@ -91,11 +92,11 @@ void setup() {
   pinMode(sw, INPUT_PULLUP);
 
   SerialPC.begin(9600);
-  SerialPC.println(0);
+  SerialMDD1.begin(9600);
 
   now.field = 0;
   now.action = 0;
-  now.theta = 30;
+  now.theta = 0;
 }
 
 void loop() {
@@ -111,8 +112,10 @@ void loop() {
       break;
     case 255:
       now.action = 255;
-      MDD1_send(stop);
-      while (true);
+      MDD1_simulate(stop);
+      while (true) {
+        PC_send(now);
+      }
       break;
     case 1:
       //mode R100
@@ -131,8 +134,10 @@ void loop() {
       [[fallthrough]];
     default:
       //mode R100,RB,RO,RH,Ball
-      MDD1_send(go);
+      MDD1_simulate(go);
   }
+
+  SerialMDD1.write(digitalRead(sw)==1?1:0);
 
   PC_send(now);
 }
