@@ -14,7 +14,6 @@ struct DataSTM {
   float theta; //[deg]
   uint8_t field; //0~1
   uint8_t action; //0~5
-  uint8_t finished; //0~5
 };
 
 constexpr uint8_t sw = PC13;
@@ -86,107 +85,6 @@ void MDD1_send(moveType a) {
   }
 }
 
-uint32_t timer;
-void simulate() {
-  if (received.action == now.finished) {
-    now.action = 0;
-    MDD1_send(go);
-  } else {
-
-  switch (received.action) {
-    case 1:
-      if (now.action != 1) {
-        timer = millis();
-        now.action = 1;
-        digitalWrite(valve[2], HIGH);
-      } else {
-        if (millis()-timer > 100) {
-          now.finished = 1;
-          now.action = 0;
-        }
-      }
-      break;
-    case 2:
-      if (now.action != 2) {
-        timer = millis();
-        now.action = 2;
-        digitalWrite(valve[0], HIGH);
-      } else {
-        static bool flag = false;
-        if (millis()-timer > 100) {
-          if (millis()-timer > 200) {
-            now.finished = 2;
-            now.action = 0;
-          } else {
-            if (!flag) {
-              digitalWrite(valve[1], HIGH);
-              flag = true;
-            }
-          }
-        }
-      }
-      break;
-    case 3:
-      if (now.action != 3) {
-        timer = millis();
-        now.action = 3;
-        digitalWrite(valve[0], HIGH);
-      } else {
-        static bool flag = false;
-        if (millis()-timer > 100) {
-          if (millis()-timer > 200) {
-            now.finished = 3;
-            now.action = 0;
-          } else {
-            if (!flag) {
-              digitalWrite(valve[1], HIGH);
-              flag = true;
-            }
-          }
-        }
-      }
-      break;
-    case 4:
-      if (now.action != 4) {
-        timer = millis();
-        now.action = 4;
-        digitalWrite(valve[0], HIGH);
-      } else {
-        static bool flag = false;
-        if (millis()-timer > 100) {
-          if (millis()-timer > 200) {
-            now.finished = 4;
-            now.action = 0;
-          } else {
-            if (!flag) {
-              digitalWrite(valve[1], HIGH);
-              flag = true;
-            }
-          }
-        }
-      }
-      break;
-    case 5:
-      if (now.action != 5) {
-        timer = millis();
-        now.action = 5;
-      } else {
-        MDD1_send(go);
-      }
-      break;
-    case 0:
-      now.action = 0;
-      MDD1_send(go);
-      break;
-    case 255:
-      now.action = 255;
-      MDD1_send(stop);
-      break;
-  }
-
-  }
-}
-
 void setup() {
   // put your setup code here, to run once:
   for (uint8_t i : valve) pinMode(i, OUTPUT);
@@ -197,7 +95,6 @@ void setup() {
 
   now.field = 0;
   now.action = 0;
-  now.finished = 0;
   now.theta = 30;
 }
 
@@ -209,7 +106,33 @@ void loop() {
     PC_receive(&received);
   }
 
-  simulate();
+  switch (now.action) {
+    case 0:
+      break;
+    case 255:
+      now.action = 255;
+      MDD1_send(stop);
+      while (true);
+      break;
+    case 1:
+      //mode R100
+      [[fallthrough]];
+    case 2:
+      //mode RB
+      [[fallthrough]];
+    case 3:
+      //mode RO
+      [[fallthrough]];
+    case 4:
+      //mode RH
+      [[fallthrough]];
+    case 5:
+      //mode Ball
+      [[fallthrough]];
+    default:
+      //mode R100,RB,RO,RH,Ball
+      MDD1_send(go);
+  }
 
   PC_send(now);
 }
