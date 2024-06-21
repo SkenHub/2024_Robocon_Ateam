@@ -109,13 +109,10 @@ void loop() {
 
   switch (now.action) {
     case 0:
+      MDD1_simulate(go);
       break;
     case 255:
-      now.action = 255;
       MDD1_simulate(stop);
-      while (true) {
-        PC_send(now);
-      }
       break;
     case 1:
       //mode R100
@@ -134,7 +131,7 @@ void loop() {
       [[fallthrough]];
     default:
       //mode R100,RB,RO,RH,Ball
-      MDD1_simulate(go);
+      pass = pass;
   }
 
   SerialMDD1.write(digitalRead(sw)==1?1:0);
