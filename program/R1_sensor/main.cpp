@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa404
-  * @version V0.0.0
-  * @date    17-June-2024
+  * @version V0.1.0
+  * @date    23-June-2024
   * @brief   R1 Sensor function.
   ******************************************************************************
 */
@@ -12,52 +12,41 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_nucleo.h"
 #include "sken_library/include.h"
+#include "myuart.hpp"
+
+constexpr double TIRE_DIAMETER = 1; //計測輪直径[mm]
+constexpr double BODY_DIAMETER = 1; //計測輪間直径[mm]
+constexpr uint8_t SEND_DATASIZE = 12;
 
 Encoder enc[3];
 Encoder_data enc_data[3];
 float posx, posy, post;
-Uart arduino;
-uint8_t send_data[16];
-uint8_t mode, action;
+MyUart<0> uartMDD1;
+union {float f[SEND_DATASIZE/4]; uint8_t u8[SEND_DATASIZE];} send_data;
 
 void main_interrupt(void) {
 	for (int i=0; i<3; ++i) enc[i].interrupt(&enc_data[i]);
+	//read and update position
 	posx = 0;
 	posy = 0;
 	post = 0;
 
-	ConvertIntFloat conv;
-	send_data[0] = 0xA5;
-	send_data[1] = 0xA5;
-	conv.float_val = posx;
-	send_data[2] = conv.uint8_val[0];
-	send_data[3] = conv.uint8_val[1];
-	send_data[4] = conv.uint8_val[2];
-	send_data[5] = conv.uint8_val[3];
-	conv.float_val = posy;
-	send_data[6] = conv.uint8_val[0];
-	send_data[7] = conv.uint8_val[1];
-	send_data[8] = conv.uint8_val[2];
-	send_data[9] = conv.uint8_val[3];
-	conv.float_val = post;
-	send_data[10] = conv.uint8_val[0];
-	send_data[11] = conv.uint8_val[1];
-	send_data[12] = conv.uint8_val[2];
-	send_data[13] = conv.uint8_val[3];
-	send_data[14] = mode;
-	send_data[15] = action;
+	send_data.f[0] = posx;
+	send_data.f[1] = posy;
+	send_data.f[2] = post;
+	uartMDD1.write(send_data.u8, SEND_DATASIZE);
 }
 
 int main(void)
 {
 	sken_system.init();
 
-	arduino.init();
-	//arduino.startDmaRead();
+	//左のコネクタからから順番に
+	enc[0].init(A0,A1,TIMER5);
+	enc[1].init(B3,A5,TIMER2);
+	enc[2].init(B6,B7,TIMER4);
 
-	enc[0].init();
-	enc[1].init();
-	enc[2].init();
+	uartMDD1.init(USB_B,9600);
 
 	sken_system.addTimerInterruptFunc(main_interrupt, 0, 1);
 

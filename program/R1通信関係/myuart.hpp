@@ -1,7 +1,7 @@
 /*
  * myuart.hpp
  *
- *  Created on: Jun 22, 2024
+ *  Created on: Jun 23, 2024
  *      Author: tikuwa404
  */
 
@@ -32,9 +32,9 @@ public:
 	bool read(uint8_t* container) {
 		//リングバッファから先頭を検出して読み込み
 		uint8_t tmp[2][clen_];
-		for (size_t i = 0; i < clen_; ++i) {
+		for (int i = 0; i < clen_; ++i) {
 			if (raw_[i]==0xA5 && raw_[i+1]==0xA5) {
-				for (size_t j = 0; j < clen_; ++j) {
+				for (int j = 0; j < clen_; ++j) {
 					tmp[0][j] = raw_[i+j];
 					tmp[1][j] = raw_[(i+j) % (clen_*2)];
 				}
