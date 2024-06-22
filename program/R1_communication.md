@@ -1,5 +1,5 @@
 # Communication for R1
-R1の通信備忘録  
+R1のUART通信備忘録  
 PC ↔ Board-DD間通信は9600bps  
 マイコン間通信は9600bps（余裕がありそうなら速める予定）
 
@@ -62,6 +62,9 @@ PC ↔ Board-DD間通信は9600bps
 　速度[m/s] : float = uint8_t[4]  
 　方向[deg] : float = uint8_t[4]  
 　角度[deg] : float = uint8_t[4]  
+処理部　2Byte  
+　seq : uint8_t  
+　checksum : uint8_t
 
 ## Board-DD <-- Board-MDD1
 送信情報   
@@ -74,6 +77,9 @@ PC ↔ Board-DD間通信は9600bps
 　x[mm] : float = uint8_t[4]  
 　y[mm] : float = uint8_t[4]  
 　θ[deg] : float = uint8_t[4]   
+処理部　2Byte  
+　seq : uint8_t  
+　checksum : uint8_t
 
 ## Board-MDD1 --> Board-Sensor
 送信情報　なし   
@@ -89,6 +95,9 @@ PC ↔ Board-DD間通信は9600bps
 　x[mm] : float = uint8_t[4]  
 　y[mm] : float = uint8_t[4]  
 　θ[deg] : float = uint8_t[4]  
+処理部　2Byte  
+　seq : uint8_t  
+　checksum : uint8_t
 
 ## Board-DD --> Board-MDD2
 送信情報   
@@ -96,9 +105,9 @@ PC ↔ Board-DD間通信は9600bps
 
 通信開始部　nByte  
 データ部　nByte  
+処理部 nByte
 
 ## Board-DD <-- Board-MDD2
 送信情報　なし  
-
 
 Created by Tikuwa404
