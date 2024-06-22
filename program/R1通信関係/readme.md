@@ -1,3 +1,6 @@
+# myuart.hpp for R1
+R1のUART通信に使うライブラリ（説明は別ファイル）
+
 # Communication for R1
 R1のUART通信備忘録  
 PC ↔ Board-DD間通信は9600bps  
