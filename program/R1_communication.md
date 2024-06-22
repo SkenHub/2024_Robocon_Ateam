@@ -2,21 +2,21 @@
 R1の通信備忘録
 
 ## 配線
-AはUSB-A(A9,A10,SERIAL1)、BはUSB-B(C10,C11,SERIAL3)の意  
-> USB-B  
-> *Board-MDD1(undercarriage)*  
-> USB-A  
-> 　↕  
-> USB-B  
-> *Board-DD*　USB-miniB  ↔ *PC*  
-> USB-A  
-> 　↕  
-> USB-B  
-> *Board-Sensor*  
-> USB-A  
-> 　↕  
-> USB-B  
-> *Board-MDD2(launcher)*
+　AはUSB-A(A9,A10,SERIAL1)、BはUSB-B(C10,C11,SERIAL3)の意  
+　　USB-B  
+　*Board-MDD1(undercarriage)*  
+　　USB-A  
+　　　↕  
+　　USB-B  
+　*Board-DD*　USB-miniB  ↔ *PC*  
+　　USB-A  
+　　　↕  
+　　USB-B  
+　*Board-Sensor*  
+　　USB-A  
+　　　↕  
+　　USB-B  
+　*Board-MDD2(launcher)*
 
 ## Board-DD --> PC
 送信情報   
