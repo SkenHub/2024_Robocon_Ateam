@@ -42,6 +42,8 @@ HardwareSerial SerialMDD2(PC11,PC10);
 
 DataSTM now;
 
+uint8_t debug[16];
+
 uint8_t ring[17] = {}; // データサイズを17に増加
 bool is_read = false;
 uint8_t calculate_checksum(const uint8_t* data, size_t length) {
@@ -52,12 +54,13 @@ uint8_t calculate_checksum(const uint8_t* data, size_t length) {
   return checksum % 256;
 }
 
-void PC_receive(DataFromPC *data) {
+void PC_receive(DataFromPC *data, uint8_t *raw) {
   is_read = false;
   while (SerialPC.available() > 0) {
     for (int i = 0; i < 16; ++i) ring[i] = ring[i+1]; // データサイズを17に増加
     ring[16] = SerialPC.read(); // チェックサムも含める
     if (ring[0] == 0xA5 && ring[1] == 0xA5) {
+      for (int i = 0; i < 16; ++i) raw[i] = ring[i];
       uint8_t received_checksum = ring[16];
       uint8_t calculated_checksum = calculate_checksum(ring, 16); // 16バイトのデータに対してチェックサムを計算
 
@@ -122,7 +125,7 @@ void setup() {
   pinMode(led, OUTPUT);
 
   SerialPC.begin(9600);
-  SerialMDD1.begin(9600);
+  SerialMDD1.begin(115200);
   SerialMDD2.begin(9600);
 
   now.x = 0;
@@ -134,7 +137,7 @@ void setup() {
 
 void loop() {  
   if (SerialPC.available() > 0) {
-    PC_receive(&received);
+    PC_receive(&received,debug);
   }
   if (SerialMDD1.available() >= (FROM_MDD1_DATASIZE+4)*2) {
     SerialMDD1.readBytes(MDD1_raw, (FROM_MDD1_DATASIZE+4)*2);
@@ -146,33 +149,25 @@ void loop() {
   now.x = MDD1_data.f[0];
   now.y = MDD1_data.f[1];
   now.theta = MDD1_data.f[2];
+  
+  SerialMDD1.write(debug, 16);
 
-  switch (now.action) {
-    case 0:
-      MDD1_send(received.move_spd, received.move_dir, received.rot);
-      break;
-    case 255:
+  /*
+  if (now.action == 0) {
+    MDD1_send(received.move_spd, received.move_dir, received.rot);
+  } else if (now.action == 1) {
+    MDD1_send(0, 0, now.theta);
+    digitalWrite(valve[0], HIGH);
+  } else if (now.action == 255) {
+    MDD1_send(0, 0, now.theta);
+  } else if (now.action == 5) {
+    MDD1_send(received.move_spd, received.move_dir, received.rot);
+  } else {
       MDD1_send(0, 0, now.theta);
-      break;
-    case 1:
-      //mode R100
-      [[fallthrough]];
-    case 2:
-      //mode RB
-      [[fallthrough]];
-    case 3:
-      //mode RO
-      [[fallthrough]];
-    case 4:
-      //mode RH
-      [[fallthrough]];
-    case 5:
-      //mode Ball
-      [[fallthrough]];
-    default:
-      //mode R100,RB,RO,RH,Ball
-      if (1 == 1) {}
+      digitalWrite(valve[1], HIGH);
+      digitalWrite(valve[2], HIGH);
   }
+  */
 
   //MDD2_send
   PC_send(now);

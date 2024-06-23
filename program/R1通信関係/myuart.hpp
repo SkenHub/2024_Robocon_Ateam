@@ -29,13 +29,14 @@ public:
 			break;
 		case USB_miniB:
 			uart_.init(A2, A3, SERIAL2, baudrate);
+			break;
 		}
 		uart_.startDmaRead(raw_, clen_*2);
 	}
 	bool read(uint8_t* container) {
 		//リングバッファから先頭を検出して読み込み
 		uint8_t tmp[2][clen_];
-		for (int i = 0; i < clen_; ++i) {
+		for (int i = 0; i < clen_-1; ++i) {
 			if (raw_[i]==0xA5 && raw_[i+1]==0xA5) {
 				for (int j = 0; j < clen_; ++j) {
 					tmp[0][j] = raw_[i+j];
@@ -59,7 +60,6 @@ public:
 					return true;
 				}
 			}
-			if (i == clen_-1) return false;
 		}
 		return false;
 	}
@@ -75,6 +75,11 @@ public:
 		tmp[size+2] = ++send_seq_;
 		tmp[size+3] = checksum % 256;
 		uart_.write(tmp, clen_);
+	}
+	void get_raw(uint8_t* container) {
+		for (int i = 0; i < clen_*2; ++i) {
+			container[i] = raw_[i];
+		}
 	}
 private:
 	Uart uart_;

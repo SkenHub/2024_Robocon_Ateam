@@ -112,3 +112,34 @@ int main(void)
     }
 }
 ```
+## void Uart::get_raw(uint8_t* container)
+リングバッファの内容をcontainerにコピーする
+containerの長さは(テンプレート引数+4)*2でなくてはならない
+
+[パラメータ]  
+コピー先データ配列の先頭アドレス  
+
+[戻り値]  
+なし
+
+[サンプルコード]
+``` c++
+#include "stm32f4xx.h"
+#include "stm32f4xx_nucleo.h"
+#include "sken_library/include.h"
+#include "myuart.hpp"
+
+MyUart<12> serial;
+
+uint8_t data[32];
+
+int main(void)
+{
+    sken_system.init();
+    serial.init(USB_A, 9600);
+
+    while (true) {
+        serial.get_raw(data);
+    }
+}
+```
