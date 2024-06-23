@@ -10,7 +10,8 @@
 
 enum USBname {
 	USB_A,
-	USB_B
+	USB_B,
+	USB_miniB
 };
 
 //DATA_LENGTH_にデータ部のバイト数を入れる
@@ -26,6 +27,8 @@ public:
 		case USB_B:
 			uart_.init(C10, C11, SERIAL3, baudrate);
 			break;
+		case USB_miniB:
+			uart_.init(A2, A3, SERIAL2, baudrate);
 		}
 		uart_.startDmaRead(raw_, clen_*2);
 	}
@@ -38,26 +41,25 @@ public:
 					tmp[0][j] = raw_[i+j];
 					tmp[1][j] = raw_[(i+j) % (clen_*2)];
 				}
-				break;
+				//チェックサム計算
+				uint32_t check_sum[2] = {};
+				for (int j = 2; j < clen_-2; ++j) {
+					check_sum[0] += tmp[0][j];
+					check_sum[1] += tmp[1][j];
+				}
+				//新しいデータの場合、受信データとして格納
+				if (tmp[0][clen_-1]==check_sum[0]%256 && (tmp[0][clen_-2]>received_seq_ || tmp[0][clen_-2]-received_seq_<-100)) {
+					received_seq_ = tmp[0][2];
+					for (int j = 0; j < DATA_LENGTH_; ++j) container[j] = tmp[0][j+2];
+					return true;
+				}
+				if (tmp[1][clen_-1]==check_sum[1]%256 && (tmp[1][clen_-2]>received_seq_ || tmp[1][clen_-2]-received_seq_<-100)) {
+					received_seq_ = tmp[1][2];
+					for (int j = 0; j < DATA_LENGTH_; ++j) container[j] = tmp[1][j+2];
+					return true;
+				}
 			}
 			if (i == clen_-1) return false;
-		}
-		//チェックサム計算
-		uint32_t check_sum[2] = {};
-		for (int i = 2; i < clen_-2; ++i) {
-			check_sum[0] += tmp[0][i];
-			check_sum[1] += tmp[1][i];
-		}
-		//新しいデータの場合、受信データとして格納
-		if (tmp[0][clen_-1]==check_sum[0]%256 && (tmp[0][clen_-2]>received_seq_ || tmp[0][clen_-2]-received_seq_<-100)) {
-			received_seq_ = tmp[0][2];
-			for (int i = 0; i < DATA_LENGTH_; ++i) container[i] = tmp[0][i+2];
-			return true;
-		}
-		if (tmp[1][clen_-1]==check_sum[1]%256 && (tmp[1][clen_-2]>received_seq_ || tmp[1][clen_-2]-received_seq_<-100)) {
-			received_seq_ = tmp[1][2];
-			for (int i = 0; i < DATA_LENGTH_; ++i) container[i] = tmp[1][i+2];
-			return true;
 		}
 		return false;
 	}

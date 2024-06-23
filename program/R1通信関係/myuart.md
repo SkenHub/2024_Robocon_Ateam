@@ -10,6 +10,7 @@ R1のUART通信を簡単にするためのクラス。
 # enum USBname
 * USB_A
 * USB_B
+* USB_miniB
 
 # class MyUart
 ## MyUart(void)
