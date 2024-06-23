@@ -1,5 +1,5 @@
 /*
- * myuart.hpp
+ * uartconv.hpp
  *
  *  Created on: Jun 23, 2024
  *      Author: tikuwa404
@@ -8,35 +8,23 @@
 #ifndef MYUART_HPP_
 #define MYUART_HPP_
 
-enum USBname {
-	USB_A,
-	USB_B
-};
+#include <Arduino.h>
 
+//myuart.hppの改造版（platformIOのマイコン間通信用）
 //DATA_LENGTH_にデータ部のバイト数を入れる
 //チェックサムの確認と先頭検出と新しいデータかの確認をしてくれる
-template<uint8_t DATA_LENGTH_> class MyUart {
+template<uint8_t DATA_LENGTH_> class UartConv {
 public:
-	MyUart(void) {};
-	void init(USBname usb, uint32_t baudrate) {
-		switch (usb) {
-		case USB_A:
-			uart_.init(A9, A10, SERIAL1, baudrate);
-			break;
-		case USB_B:
-			uart_.init(C10, C11, SERIAL3, baudrate);
-			break;
-		}
-		uart_.startDmaRead(raw_, clen_*2);
-	}
-	bool read(uint8_t* container) {
+	//rawの長さは(DATA_LENGTH_+4)*2
+	//containerの長さはDATA_LENGTH_
+	bool read(uint8_t* raw, uint8_t* container) {
 		//リングバッファから先頭を検出して読み込み
 		uint8_t tmp[2][clen_];
 		for (int i = 0; i < clen_; ++i) {
-			if (raw_[i]==0xA5 && raw_[i+1]==0xA5) {
-				for (int j = 0; j < clen_; ++j) {
-					tmp[0][j] = raw_[i+j];
-					tmp[1][j] = raw_[(i+j) % (clen_*2)];
+			if (raw[i]==0xA5 && raw[i+1]==0xA5) {
+				for (size_t j = 0; j < clen_; ++j) {
+					tmp[0][j] = raw[i+j];
+					tmp[1][j] = raw[(i+j) % (clen_*2)];
 				}
 				break;
 			}
@@ -61,23 +49,22 @@ public:
 		}
 		return false;
 	}
-	void write(uint8_t* data, uint8_t size) {
-		uint8_t tmp[size+4];
-		tmp[0] = 0xA5;
-		tmp[1] = 0xA5;
+	//dataはrawより4長い(dataの長さ=clen_)
+	//rawの長さ:size、dataの長さ:size+4
+	void write(uint8_t* raw, uint8_t size, uint8_t* data) {
+		data[0] = 0xA5;
+		data[1] = 0xA5;
 		uint32_t checksum = 0;
 		for (int i = 0; i < size; ++i) {
-			tmp[i+2] = data[i];
-			checksum += data[i];
+			data[i+2] = raw[i];
+			checksum += raw[i];
 		}
-		tmp[size+2] = ++send_seq_;
-		tmp[size+3] = checksum % 256;
-		uart_.write(tmp, clen_);
+		data[size+2] = ++send_seq_;
+		data[size+3] = checksum % 256;
 	}
 private:
-	Uart uart_;
 	const uint8_t clen_ = DATA_LENGTH_+4; //0xA5,0xA5,seq,checksum
-	uint8_t raw_[(DATA_LENGTH_+4)*2];
+	uint8_t pointer_ = 0;
 	uint8_t received_seq_ = 0;
 	uint8_t send_seq_ = 0;
 };
