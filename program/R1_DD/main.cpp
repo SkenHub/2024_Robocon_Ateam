@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  tikuwa404
-  * @version V0.1.0
+  * @version V0.1.1
   * @date    24-June-2024
   * @brief   R1 DD function. (for SW4 and sken_library)
   ******************************************************************************
@@ -44,17 +44,18 @@ struct DataSTM {
 
 void PC_receive(void) {
 	uint8_t tmp[14];
-	f3_u812_convert conv;
-	uartPC.read(tmp);
-	for (int i = 0; i < 12; ++i) conv.u8[i] = tmp[i];
-	received.move_spd = conv.f[0];
-	received.move_dir = conv.f[1];
-	received.rot = conv.f[2];
-	received.field = tmp[12];
-	received.action = tmp[13];
+	if (uartPC.read(tmp)) {
+		f3_u812_convert conv;
+		for (int i = 0; i < 12; ++i) conv.u8[i] = tmp[i];
+		received.move_spd = conv.f[0];
+		received.move_dir = conv.f[1];
+		received.rot = conv.f[2];
+		received.field = tmp[12];
+		received.action = tmp[13];
 
-	now.field = received.field;
-	now.action = received.action;
+		now.field = received.field;
+		now.action = received.action;
+	}
 }
 
 void PC_send(void) {
@@ -66,18 +67,18 @@ void PC_send(void) {
 	for (int i = 0; i < 12; ++i) {
 		tmp[i] = conv.u8[i];
 	}
-	conv.u8[12] = now.field;
-	conv.u8[13] = now.action;
+	tmp[12] = now.field;
+	tmp[13] = now.action;
 	uartPC.write(tmp, 14);
 }
 
 void MDD1_receive(void) {
 	f3_u812_convert tmp;
-	uartMDD1.read(tmp.u8);
-
-	now.x = tmp.f[0];
-	now.y = tmp.f[1];
-	now.theta = tmp.f[2];
+	if (uartMDD1.read(tmp.u8)) {
+		now.x = tmp.f[0];
+		now.y = tmp.f[1];
+		now.theta = tmp.f[2];
+	}
 }
 
 void MDD1_send(float *order) {
@@ -101,7 +102,6 @@ void main_interrupt(void) {
 		MDD1_order[0] = 0;
 		MDD1_order[1] = 0;
 		MDD1_order[2] = 0;
-
 		valve[0].write(HIGH);
 	} else if (now.action == 255) {
 		MDD1_order[0] = 0;
@@ -115,7 +115,6 @@ void main_interrupt(void) {
 		MDD1_order[0] = 0;
 		MDD1_order[1] = 0;
 		MDD1_order[2] = 0;
-
 		valve[1].write(HIGH);
 		valve[2].write(HIGH);
 	}
