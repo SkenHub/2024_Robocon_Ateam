@@ -5,7 +5,8 @@
 
 R1のUART通信を簡単にするためのクラス。  
 モジュール基盤以外での使用は想定されていない。  
-通信自体はsken_libraryのUartクラスで行っている。
+通信自体はsken_libraryのUartクラスで行っている。  
+ついでにminiBを使ったPCとの通信にも対応した。
 
 # enum USBname
 * USB_A

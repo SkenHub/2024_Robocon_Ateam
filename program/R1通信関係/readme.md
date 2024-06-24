@@ -4,7 +4,7 @@ R1のUART通信に使うライブラリ（説明は別ファイル）
 # Communication for R1
 R1のUART通信備忘録  
 PC ↔ Board-DD間通信は9600bps  
-マイコン間通信は9600bps（余裕がありそうなら速める予定）
+マイコン間通信は115200bps
 
 ## 配線
 　AはUSB-A(A9,A10,SERIAL1)、BはUSB-B(C10,C11,SERIAL3)の意   

@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  tikuwa404
-  * @version V0.0.0
+  * @version V0.1.0
   * @date    24-June-2024
   * @brief   R1 DD function. (for SW4 and sken_library)
   ******************************************************************************
@@ -14,17 +14,19 @@
 #include "sken_library/include.h"
 #include "myuart.hpp"
 
+union f3_u812_convert {
+	float f[3];
+	uint8_t u8[12];
+};
+
 Gpio sw, led;
 Gpio valve[3];
 
 MyUart<14> uartPC;
-uint8_t PC_data[14];
 MyUart<12> uartMDD1;
-union f3_u812_convert {
-	float f[3];
-	uint8_t u8[12];
-} MDD1_data;
+float MDD1_order[3];
 //Uart uartMDD2;
+
 struct DataFromPC {
   float move_spd; //[m/s]
   float move_dir; //[deg]
@@ -69,9 +71,56 @@ void PC_send(void) {
 	uartPC.write(tmp, 14);
 }
 
+void MDD1_receive(void) {
+	f3_u812_convert tmp;
+	uartMDD1.read(tmp.u8);
+
+	now.x = tmp.f[0];
+	now.y = tmp.f[1];
+	now.theta = tmp.f[2];
+}
+
+void MDD1_send(float *order) {
+	f3_u812_convert tmp;
+	tmp.f[0] = order[0];
+	tmp.f[1] = order[1];
+	tmp.f[2] = order[2];
+	uartMDD1.write(tmp.u8,12);
+}
+
 void main_interrupt(void) {
 	PC_receive();
+	MDD1_receive();
 	PC_send();
+
+	if (now.action == 0) {
+		MDD1_order[0] = received.move_spd;
+		MDD1_order[1] = received.move_dir;
+		MDD1_order[2] = received.rot;
+	} else if (now.action == 1) {
+		MDD1_order[0] = 0;
+		MDD1_order[1] = 0;
+		MDD1_order[2] = 0;
+
+		valve[0].write(HIGH);
+	} else if (now.action == 255) {
+		MDD1_order[0] = 0;
+		MDD1_order[1] = 0;
+		MDD1_order[2] = 0;
+	} else if (now.action == 5) {
+		MDD1_order[0] = received.move_spd;
+		MDD1_order[1] = received.move_dir;
+		MDD1_order[2] = received.rot;
+	} else {
+		MDD1_order[0] = 0;
+		MDD1_order[1] = 0;
+		MDD1_order[2] = 0;
+
+		valve[1].write(HIGH);
+		valve[2].write(HIGH);
+	}
+
+	MDD1_send(MDD1_order);
 }
 
 int main(void)
@@ -86,6 +135,12 @@ int main(void)
 
 	uartPC.init(USB_miniB,9600);
 	uartMDD1.init(USB_A,115200);
+
+	now.x=0;
+	now.y=0;
+	now.theta=0;
+	now.field=0;
+	now.action=0;
 
 	sken_system.addTimerInterruptFunc(main_interrupt,0,1);
 

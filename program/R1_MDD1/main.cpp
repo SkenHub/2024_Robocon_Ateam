@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa404
-  * @version V0.2.0
+  * @version V0.2.1
   * @date    23-June-2024
   * @brief   R1 MDD1(undercarriage) function.
   ******************************************************************************
@@ -62,18 +62,24 @@ union {float f[FROM_SENSOR_DATASIZE/4]; uint8_t u8[FROM_SENSOR_DATASIZE];} uartS
 
 double debug[8];
 int is_read;
-uint8_t showRaw[32];
 //run every 1ms
 void main_interrupt(void) {
 	//communicate
 	is_read = uartDD.read(uartDD_data.u8);
 	uartSensor.read(uartSensor_data.u8);
 	uartDD.write(uartSensor_data.u8, FROM_SENSOR_DATASIZE);
+	if (uartDD_data.f[0]==0 && uartDD_data.f[1]==0 && uartDD_data.f[2]==0) {
+
+		for (int i = 0; i < 4; ++i) {
+			mtr[i].write(0);
+			mtr_rq[i] = 0;
+		}
+
+	} else {
+
 	rq_abs.x = uartDD_data.f[0]*cos(uartDD_data.f[1]);
 	rq_abs.y = uartDD_data.f[0]*sin(uartDD_data.f[1]);
 	rq_theta = uartDD_data.f[2];
-
-	uartDD.get_raw(showRaw);
 
 	//read encoder
 	for(int i = 0; i < 4; ++i) enc[i].interrupt(&enc_data[i]);
@@ -99,6 +105,8 @@ void main_interrupt(void) {
 		if (mtr_rq[i] < -95) mtr_rq[i] = -95;
 	}
 	for(int i = 0; i < 4; ++i) mtr[i].write(static_cast<int>(mtr_rq[i]));
+
+	}
 }
 
 //main
