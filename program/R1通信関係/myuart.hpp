@@ -74,7 +74,7 @@ public:
 		}
 		tmp[size+2] = ++send_seq_;
 		tmp[size+3] = checksum % 256;
-		uart_.write(tmp, clen_);
+		uart_.write(tmp, size+4);
 	}
 	void get_raw(uint8_t* container) {
 		for (int i = 0; i < clen_*2; ++i) {
