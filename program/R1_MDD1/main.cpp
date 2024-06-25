@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa404
-  * @version V0.2.1
-  * @date    23-June-2024
+  * @version V0.2.2
+  * @date    25-June-2024
   * @brief   R1 MDD1(undercarriage) function.
   ******************************************************************************
 */
@@ -21,11 +21,6 @@ using std::cos;
 
 constexpr double TIRE_DIAMETER = 100; //駆動輪直径[mm]
 constexpr double BODY_DIAMETER = 1444.616; //駆動輪間直径[mm]
-constexpr uint8_t FROM_DD_DATASIZE = 12;
-constexpr uint8_t FROM_SENSOR_DATASIZE = 12;
-constexpr double Kp = 0.1;
-constexpr double Ki = 0;
-constexpr double Kd = 1;
 
 //このファイルの全ての角度(theta)は度数法。
 class Point {
@@ -50,62 +45,60 @@ public:
 Point rq_abs; double rq_theta; //絶対座標系での指定{{x[mm/s],y[mm/s]},theta[deg]}
 Point rq_local;
 double mtr_target[4]; //モーター目標速度[mm/s]
-double mtr_rq[4] = {}; //モーター出力[% <95]
+Pid mtr_pid[4];
+int mtr_rq[4]; //モーター出力[% <95]
 Motor mtr[4];
 Encoder enc[4]; Encoder_data enc_data[4];
 
 //MyUart<12> Uartdebug;
-MyUart<FROM_DD_DATASIZE> uartDD;
-union {float f[FROM_DD_DATASIZE/4]; uint8_t u8[FROM_DD_DATASIZE];} uartDD_data;
-MyUart<FROM_SENSOR_DATASIZE> uartSensor;
-union {float f[FROM_SENSOR_DATASIZE/4]; uint8_t u8[FROM_SENSOR_DATASIZE];} uartSensor_data;
+MyUart<12> uartDD;
+union {float f[3]; uint8_t u8[12];} uartDD_raw;
+float uartDD_data[3];
+MyUart<12> uartSensor;
+union {float f[3]; uint8_t u8[12];} uartSensor_data;
 
-double debug[8];
-int is_read;
 //run every 1ms
 void main_interrupt(void) {
 	//communicate
-	is_read = uartDD.read(uartDD_data.u8);
+	if (uartDD.read(uartDD_raw.u8)) {
+		uartDD_data[0] = uartDD_raw.f[0];
+		uartDD_data[1] = uartDD_raw.f[1];
+		uartDD_data[2] = uartDD_raw.f[2];
+	}
 	uartSensor.read(uartSensor_data.u8);
-	uartDD.write(uartSensor_data.u8, FROM_SENSOR_DATASIZE);
-	if (uartDD_data.f[0]==0 && uartDD_data.f[1]==0 && uartDD_data.f[2]==0) {
-
-		for (int i = 0; i < 4; ++i) {
-			mtr[i].write(0);
-			mtr_rq[i] = 0;
-		}
-
-	} else {
-
-	rq_abs.x = uartDD_data.f[0]*cos(uartDD_data.f[1]);
-	rq_abs.y = uartDD_data.f[0]*sin(uartDD_data.f[1]);
-	rq_theta = uartDD_data.f[2];
+	uartDD.write(uartSensor_data.u8, 12);
 
 	//read encoder
 	for(int i = 0; i < 4; ++i) enc[i].interrupt(&enc_data[i]);
 
-	//localize rq
-	rq_local = Point::rotated(rq_abs, -uartSensor_data.f[2]);
-	debug[0] = rq_abs.x;
-	debug[1] = rq_abs.y;
-	debug[2] = rq_local.x;
-	debug[3] = rq_local.y;
+	if (uartDD_data[0]==0 && uartDD_data[1]==0 && uartDD_data[2]==0) {
+		for (int i = 0; i < 4; ++i) {
+			mtr_rq[i] = 0;
+			mtr_pid[i].reset();
+		}
+	} else {
+		rq_abs.x = uartDD_data[0]*cos(uartDD_data[1]);
+		rq_abs.y = uartDD_data[0]*sin(uartDD_data[1]);
+		rq_theta = uartDD_data[2];
 
-	//communicate with motor
-	//unavailable: encoder control
-	double targetByRot = rq_theta;
-	mtr_target[0] = Point::rotated(rq_local, 45).x*M_SQRT2+targetByRot;
-	mtr_target[1] = Point::rotated(rq_local, -45).x*M_SQRT2+targetByRot;
-	mtr_target[2] = Point::rotated(rq_local, -135).x*M_SQRT2+targetByRot;
-	mtr_target[3] = Point::rotated(rq_local, 135).x*M_SQRT2+targetByRot;
-	//mtr_write
-	for (int i = 0; i < 4; ++i) {
-		mtr_rq[i] += (mtr_target[i]-enc_data[i].volcity)*Kp;
+		//localize rq
+		rq_local = Point::rotated(rq_abs, -uartSensor_data.f[2]);
+
+		//communicate with motor
+		double targetByRot = rq_theta;
+		mtr_target[0] = Point::rotated(rq_local, 45).x*M_SQRT2+targetByRot;
+		mtr_target[1] = Point::rotated(rq_local, -45).x*M_SQRT2+targetByRot;
+		mtr_target[2] = Point::rotated(rq_local, -135).x*M_SQRT2+targetByRot;
+		mtr_target[3] = Point::rotated(rq_local, 135).x*M_SQRT2+targetByRot;
+		//mtr_write
+		for (int i = 0; i < 4; ++i) {
+			mtr_rq[i] = mtr_pid[i].control(mtr_target[i],enc_data[i].volcity,1);
+		}
+	}
+	for(int i = 0; i < 4; ++i) {
 		if (mtr_rq[i] > 95) mtr_rq[i] = 95;
 		if (mtr_rq[i] < -95) mtr_rq[i] = -95;
-	}
-	for(int i = 0; i < 4; ++i) mtr[i].write(static_cast<int>(mtr_rq[i]));
-
+		mtr[i].write(mtr_rq[i]);
 	}
 }
 
@@ -128,6 +121,8 @@ int main(void)
 	enc[1].init(B3,A5,TIMER2,TIRE_DIAMETER);
 	enc[2].init(B6,B7,TIMER4,TIRE_DIAMETER);
 	enc[3].init(C6,C7,TIMER3,TIRE_DIAMETER);
+
+	for (int i = 0; i < 4; ++i) mtr_pid[i].setGain(0.1,0,1,20);
 
 	//Uartdebug.init(USB_miniB,9600);
 	uartDD.init(USB_B,115200);
