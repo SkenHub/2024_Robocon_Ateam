@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  tikuwa404
-  * @version V0.1.1
-  * @date    24-June-2024
+  * @version V0.1.2
+  * @date    25-June-2024
   * @brief   R1 DD function. (for SW4 and sken_library)
   ******************************************************************************
 */
@@ -42,14 +42,21 @@ struct DataSTM {
   uint8_t action; //0~5
 } now;
 
+float float_reverse(float in) {
+	ConvertIntFloat trans, ans;
+	trans.float_val = in;
+	for (int i = 0; i < 4; ++i) ans.uint8_val[i] = trans.uint8_val[3-i];
+	return ans.float_val;
+}
+
 void PC_receive(void) {
 	uint8_t tmp[14];
 	if (uartPC.read(tmp)) {
 		f3_u812_convert conv;
 		for (int i = 0; i < 12; ++i) conv.u8[i] = tmp[i];
-		received.move_spd = conv.f[0];
-		received.move_dir = conv.f[1];
-		received.rot = conv.f[2];
+		received.move_spd = float_reverse(conv.f[0]);
+		received.move_dir = float_reverse(conv.f[1]);
+		received.rot = float_reverse(conv.f[2]);
 		received.field = tmp[12];
 		received.action = tmp[13];
 
