@@ -1,7 +1,4 @@
-# main.cpp for sensor
-R1のDDのプログラム。PCとの通信と電磁弁開閉を担う。
-
-このプログラムはSW4へ移行しました。  
-過去のPlatform IO版はOLDフォルダにアーカイブしています。
+# main.cpp for DD
+R1のDDのプログラム。上機構モーターへの通信と電磁弁開閉を担う。
 
 Created by Tikuwa404

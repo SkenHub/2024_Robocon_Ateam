@@ -31,7 +31,7 @@ public:
 			uart_.init(A2, A3, SERIAL2, baudrate);
 			break;
 		}
-		uart_.startDmaRead(raw_, clen_*2);
+		if (DATA_LENGTH_ != 0) uart_.startDmaRead(raw_, clen_*2);
 	}
 	bool read(uint8_t* container) {
 		//リングバッファから先頭を検出して読み込み

@@ -14,13 +14,13 @@ R1のUART通信を簡単にするためのクラス。
 * USB_miniB
 
 # class MyUart
-## MyUart(void)
-コンストラクタ。テンプレート引数に受信するデータ部（通信開始部と処理部を除く）のバイト数を渡す。  
+## MyUart<uint8_t DATA_LENGTH_>(void)
+コンストラクタ。テンプレート引数（DATA_LENGTH_）に受信するデータ部（通信開始部と処理部を除く）のバイト数を渡す。  
 [サンプルコード]  
 void MyUart::init(USBname usb, uint32_t baudrate)のサンプルコードを参照
 
 ## void MyUart::init(USBname usb, uint32_t baudrate)
-シリアル通信の初期化を行う関数。自動でDMA受信を開始する。  
+シリアル通信の初期化を行う関数。DATA_LENGTH_が0でない場合に自動でDMA受信を開始する。  
 [パラメータ]  
 usb: 使用するUSBポート  
 baudrate: 転送レート。単位は[bps]
@@ -49,7 +49,7 @@ int main(void) {
 
 ## bool MyUart::read(uint8_t* container)
 受信したデータを配列に代入する関数。データ部のみ代入される。  
-containerの大きさはコンストラクタに渡したテンプレート引数と同じでなくてはならない。  
+containerの大きさはDATA_LENGTH_と同じでなくてはならない。  
 新しいデータを受信していたらtrue、していなかったらfalseを返す。
 
 [パラメータ]  
@@ -81,8 +81,7 @@ int main(void)
 ```
 
 ## void Uart::write(uint8_t* data, uint8_t size)
-ポーリングモードでデータを送信する関数。  
-コンストラクタに渡したテンプレート引数は関係無い。  
+ポーリングモードでデータを送信する関数。DATA_LENGTH_は関係無い。  
 デッドタイムは100[ms]。
 
 [パラメータ]  
@@ -114,8 +113,8 @@ int main(void)
 }
 ```
 ## void Uart::get_raw(uint8_t* container)
-リングバッファの内容をcontainerにコピーする
-containerの長さは(テンプレート引数+4)*2でなくてはならない
+リングバッファの内容をcontainerにコピーする  
+containerの長さは(DATA_LENGTH_+4)*2でなくてはならない
 
 [パラメータ]  
 コピー先データ配列の先頭アドレス  

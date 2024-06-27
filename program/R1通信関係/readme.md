@@ -12,17 +12,17 @@ PC ↔ Board-DD間通信は9600bps
 　　USB-A  
 　　　↕  
 　　USB-B  
-　*Board-DD*　USB-miniB  ↔ *PC*  
+　*Board-DD*  
 　　USB-A  
 　　　↕  
 　　USB-B  
-　*Board-MDD1(undercarriage)*  
+　*Board-MDD1(undercarriage)*　USB-miniB  ↔ *PC*  
 　　USB-A  
 　　　↕  
 　　USB-B  
 　*Board-Sensor*
 
-## Board-DD --> PC
+## Board-MDD --> PC
 送信情報   
 　ロボットの自己位置（x[mm], y[mm], θ[deg]）  
 　フィールド（青0, 赤1）  
@@ -38,7 +38,7 @@ PC ↔ Board-DD間通信は9600bps
 　フィールド : uint8_t  
 　現動作番号 : uint8_t
 
-## Board-DD <-- PC
+## Board-MDD <-- PC
 送信情報  
 　移動指令（速度[m/s], 方向[deg], 角度[deg]（方向は絶対座標））  
 　フィールド（青0, 赤1）  
@@ -55,31 +55,19 @@ PC ↔ Board-DD間通信は9600bps
 　動作番号 : uint8_t  
 
 ## Board-DD --> Board-MDD1  
-送信情報  
-　速度[m/s], 方向[deg], 角度[deg]（方向は絶対座標）
-
-通信開始部　2Byte  
-　0xA5  
-　0xA5  
-データ部　12Byte  
-　速度[m/s] : float = uint8_t[4]  
-　方向[deg] : float = uint8_t[4]  
-　角度[deg] : float = uint8_t[4]  
-処理部　2Byte  
-　seq : uint8_t  
-　checksum : uint8_t
+送信情報　なし  
 
 ## Board-DD <-- Board-MDD1
 送信情報   
-　ロボットの自己位置（x[mm], y[mm], θ[deg]）（Board-Sensorから受信したもの）  
+　電磁弁の動作（ビットで指定）
+　上機構のモーター情報（実装予定）    
 
 通信開始部　2Byte  
 　0xA5  
 　0xA5  
-データ部　12Byte  
-　x[mm] : float = uint8_t[4]  
-　y[mm] : float = uint8_t[4]  
-　θ[deg] : float = uint8_t[4]   
+データ部　1+nByte  
+　電磁弁の動作 : uint8_t  
+　上機構のモーター情報（実装予定）  
 処理部　2Byte  
 　seq : uint8_t  
 　checksum : uint8_t
