@@ -8,6 +8,8 @@
 #ifndef MYUART_HPP_
 #define MYUART_HPP_
 
+#include "sken_library/include.h"
+
 enum USBname {
 	USB_A,
 	USB_B,

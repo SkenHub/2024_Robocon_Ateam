@@ -7,20 +7,19 @@ PC ↔ Board-DD間通信は9600bps
 マイコン間通信は115200bps
 
 ## 配線
-　AはUSB-A(A9,A10,SERIAL1)、BはUSB-B(C10,C11,SERIAL3)の意   
-　*Board-MDD2(launcher)*  
-　　USB-A  
-　　　↕  
-　　USB-B  
-　*Board-DD*  
-　　USB-A  
-　　　↕  
-　　USB-B  
-　*Board-MDD1(undercarriage)*　USB-miniB  ↔ *PC*  
-　　USB-A  
-　　　↕  
-　　USB-B  
-　*Board-Sensor*
+*Board-MDD2(launcher)*  
+　USB-A  
+　　↕  
+　USB-B  
+*Board-DD*  
+　USB-A  
+　　↕  
+　USB-B  
+*Board-MDD1(undercarriage)*　USB-miniB  ↔ *PC*  
+　USB-A  
+　　↕  
+　USB-B  
+*Board-Sensor*
 
 ## Board-MDD --> PC
 送信情報   
@@ -40,7 +39,7 @@ PC ↔ Board-DD間通信は9600bps
 
 ## Board-MDD <-- PC
 送信情報  
-　移動指令（速度[m/s], 方向[deg], 角度[deg]（方向は絶対座標））  
+　移動指令（速度[m/s], 方向[deg], 角速度[deg/s]（方向は絶対座標））  
 　フィールド（青0, 赤1）  
 　動作番号  
 
@@ -50,7 +49,7 @@ PC ↔ Board-DD間通信は9600bps
 データ部　14Byte  
 　速度[m/s] : float = uint8_t[4]  
 　方向[deg] : float = uint8_t[4]  
-　角度[deg] : float = uint8_t[4]  
+　角速度[deg/s] : float = uint8_t[4]  
 　フィールド : uint8_t  
 　動作番号 : uint8_t  
 

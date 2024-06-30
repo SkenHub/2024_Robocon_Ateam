@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  tikuwa404
-  * @version V0.2.0
-  * @date    27-June-2024
+  * @version V0.2.1
+  * @date    30-June-2024
   * @brief   R1 DD function.
   ******************************************************************************
 */
@@ -15,11 +15,23 @@
 #include "myuart.hpp"
 
 MyUart<1> uartMDD1;
+//MyUart<80> uartMDD1;
+double mtr_now[4];
+double mtr_target[4];
+int mtr_rq[4];
 Gpio valve[3];
 PinState valve_state[3] = {LOW,LOW,LOW};
 //Uart uartMDD2;
 
 void MDD1_receive(void) {
+	/*
+	union {double d[10]; int i[20]; uint8_t u8[80];} conv;
+	if (uartMDD1.read(conv.u8)) {
+		for (int i = 0; i < 4; ++i) mtr_now[i] = conv.d[i];
+		for (int i = 0; i < 4; ++i) mtr_target[i] = conv.d[i+4];
+		for (int i = 0; i < 4; ++i) mtr_rq[i] = conv.i[i+16];
+	}
+	*/
 	uint8_t tmp;
 	if (uartMDD1.read(&tmp)) {
 		for (int i = 0; i < 3; ++i) valve_state[i] = ((tmp&(0x01<<i))==(0x01<<i)) ? HIGH : LOW;
