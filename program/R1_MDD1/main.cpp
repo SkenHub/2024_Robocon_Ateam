@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa404
-  * @version V0.3.4
+  * @version V0.3.5
   * @date    02-July-2024
   * @brief   R1 MDD1(undercarriage) function.
   ******************************************************************************
@@ -200,7 +200,7 @@ void main_interrupt(void) {
 		mtr_target[3] = Point::rotated(rq_local, -135).x*2-rq_theta;
 		//mtr_write
 		for (int i = 0; i < 4; ++i) {
-			mtr_rq[i] += mtr_pid[i].control(mtr_target[i],mtr_now[i],1);
+			mtr_rq[i] = mtr_pid[i].control(mtr_target[i],mtr_now[i],1);
 		}
 	}
 	for(int i = 0; i < 4; ++i) {
@@ -230,7 +230,7 @@ int main(void)
 	enc[2].init(B6,B7,TIMER4,TIRE_DIAMETER);
 	enc[3].init(C6,C7,TIMER3,TIRE_DIAMETER);
 
-	for (int i = 0; i < 4; ++i) mtr_pid[i].setGain(0.005,0,0,20);
+	for (int i = 0; i < 4; ++i) mtr_pid[i].setGain(0.1,0,0,20);
 
 	uartDD.init(USB_B,115200);
 	uartSensor.init(USB_A,115200);
