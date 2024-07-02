@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa404
-  * @version V0.3.3
-  * @date    30-June-2024
+  * @version V0.3.4
+  * @date    02-July-2024
   * @brief   R1 MDD1(undercarriage) function.
   ******************************************************************************
 */
@@ -65,7 +65,7 @@ Point rq_abs; double rq_theta; //絶対座標系での指定{{x[mm/s],y[mm/s]},t
 Point rq_local;
 double mtr_target[4]; //モーター目標速度[mm/s]
 Pid mtr_pid[4];
-int mtr_rq[4]; //モーター出力[% <95]
+double mtr_rq[4]; //モーター出力[% <95]
 Motor mtr[4];
 Encoder enc[4]; Encoder_data enc_data[4];
 double mtr_now[4]; //[mm/s]
@@ -155,8 +155,10 @@ void DD_send(void) {
 	uartDD.write(&tmp,1);
 }
 
+uint8_t debug[32];
 void Sensor_receive(void) {
 	union {float f[3]; uint8_t u8[12];} tmp;
+	uartSensor.get_raw(debug);
 	if (uartSensor.read(tmp.u8)) {
 		now.x = tmp.f[0];
 		now.y = tmp.f[1];
@@ -169,6 +171,8 @@ void main_interrupt(void) {
 	//communicate
 	Sensor_receive();
 	PC_receive();
+	DD_send();
+	PC_send();
 
 	//read encoder
 	for(int i = 0; i < 4; ++i) enc[i].interrupt(&enc_data[i]);
@@ -184,7 +188,7 @@ void main_interrupt(void) {
 	} else {
 		rq_abs.x = static_cast<double>(received.move_spd)*cos(-received.move_dir /180.0*M_PI);
 		rq_abs.y = static_cast<double>(received.move_spd)*sin(-received.move_dir /180.0*M_PI);
-		rq_theta = received.rot/360.0*BODY_DIAMETER;
+		rq_theta = received.rot/360.0*BODY_DIAMETER*PI;
 
 		//localize rq
 		rq_local = Point::rotated(rq_abs, -now.theta/180*PI);
@@ -202,7 +206,7 @@ void main_interrupt(void) {
 	for(int i = 0; i < 4; ++i) {
 		if (mtr_rq[i] > 95) mtr_rq[i] = 95;
 		if (mtr_rq[i] < -95) mtr_rq[i] = -95;
-		mtr[i].write(mtr_rq[i]);
+		mtr[i].write(static_cast<int>(mtr_rq[i]));
 	}
 }
 
@@ -226,7 +230,7 @@ int main(void)
 	enc[2].init(B6,B7,TIMER4,TIRE_DIAMETER);
 	enc[3].init(C6,C7,TIMER3,TIRE_DIAMETER);
 
-	for (int i = 0; i < 4; ++i) mtr_pid[i].setGain(0.005,0,0.001,20);
+	for (int i = 0; i < 4; ++i) mtr_pid[i].setGain(0.005,0,0,20);
 
 	uartDD.init(USB_B,115200);
 	uartSensor.init(USB_A,115200);
@@ -235,7 +239,5 @@ int main(void)
 	sken_system.addTimerInterruptFunc(main_interrupt,0,1);
 
 	while (true) {
-		DD_send();
-		PC_send();
 	}
 }
