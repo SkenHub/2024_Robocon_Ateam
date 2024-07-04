@@ -26,7 +26,7 @@ class SerialTest(Node):
                     self.pub.publish(msg)
 
     def callback(self, sub_msg):
-        self.get_logger().info(f"Received from serial_pub: {sub_msg.data}")
+        self.get_logger().info(f"Received from serial_sub: {sub_msg.data}")
         send_data = bytearray(12)
         send_data[0] = 0xA5
         send_data[1] = 0xA5
