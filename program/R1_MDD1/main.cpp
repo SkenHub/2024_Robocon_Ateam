@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    main.cpp
   * @author  Tikuwa404
-  * @version V0.3.6
+  * @version V0.3.7
   * @date    06-July-2024
   * @brief   R1 MDD1(undercarriage) function.
   ******************************************************************************
@@ -16,8 +16,8 @@
 
 #include <cmath>
 
-#define DD_DEBUG
-//#define DISABLE_PC
+//#define DD_DEBUG
+#define DISABLE_PC
 
 using std::sin;
 using std::cos;
@@ -75,6 +75,24 @@ struct DataSTM {
   uint8_t field; //0~1
   uint8_t action; //0~5
 } now;
+
+
+template <uint8_t SIZE> class Average {
+public:
+	double BUFFER_[SIZE] = {};
+	Average(void) = default;
+	double culc(int x) {
+		long double tmp = 0;
+		for (int i = 0; i < SIZE-1; ++i) {
+			BUFFER_[i] = BUFFER_[i+1];
+			tmp += BUFFER_[i];
+		}
+		BUFFER_[SIZE-1] = x;
+		return (tmp+x)/SIZE;
+	}
+};
+Average<100> culc_ave[4];
+
 
 #ifdef DISABLE_PC
 Gpio sw;
@@ -199,7 +217,7 @@ void main_interrupt(void) {
 	mtr_target[2] = (Point::rotated(rq_local, -45).x*2+rq_theta)/PI/TIRE_DIAMETER;
 	mtr_target[3] = (Point::rotated(rq_local, -135).x*2+rq_theta)/PI/TIRE_DIAMETER;
 	for (int i = 0; i < 4; i++) {
-		mtr_now[i] = static_cast<double>(enc[i].read()) / 8192.0 * 1000.0;
+		mtr_now[i] = culc_ave[i].culc(static_cast<double>(enc[i].read())) / 2048.0 * 1000.0;
 		enc[i].reset();
 	}
 	mtr_now[1] *= -1;
@@ -238,16 +256,16 @@ int main(void)
 	mtr[3].init(Apin,B14,TIMER12,CH1);
 	mtr[3].init(Bpin,B15,TIMER12,CH2);
 
-	enc[0].init(A0,A1,TIMER5,TIRE_DIAMETER);
-	enc[1].init(B3,A5,TIMER2,TIRE_DIAMETER);
-	enc[2].init(B6,B7,TIMER4,TIRE_DIAMETER);
-	enc[3].init(C6,C7,TIMER3,TIRE_DIAMETER);
+	enc[0].init(A0,A1,TIMER5,TIRE_DIAMETER,2048);
+	enc[1].init(B3,A5,TIMER2,TIRE_DIAMETER,2048);
+	enc[2].init(B6,B7,TIMER4,TIRE_DIAMETER,2048);
+	enc[3].init(C6,C7,TIMER3,TIRE_DIAMETER,2048);
 
 
-	mtr_pid[0].setGain(17,0,0,20);
-	mtr_pid[1].setGain(17,0,0,20);
-	mtr_pid[2].setGain(17,0,0,20);
-	mtr_pid[3].setGain(17,0,0,20);
+	mtr_pid[0].setGain(40,20,15,20);
+	mtr_pid[1].setGain(40,20,15,20);
+	mtr_pid[2].setGain(40,20,15,20);
+	mtr_pid[3].setGain(40,20,15,20);
 
 	uartDD.init(USB_B,115200);
 	uartSensor.init(USB_A,115200);
