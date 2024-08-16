@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>mobile_controller</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anta&display=swap">
+    <style>
+        body {
+            background: rgb(0, 0, 0);
+            text-align: center;
+            font-family: "Anta";
+        }
+
+        .button {
+            line-height: 2;
+            font-size: 40px;
+            font-weight: 900;
+        }
+
+        .denger {
+            position: absolute;
+            width: 190px;
+            height: 70px;
+            top: 190px;
+            right: 20px;
+            line-height: 1.8;
+            background-color: rgb(100, 255, 0);
+            border-style: solid;
+            border-color: rgb(0,0,0);
+        }
+
+        .behavior_1 {
+            position: absolute;
+            width: 95px;
+            height: 70px;
+            right: 305px;
+            top: 190px;
+            background-color: rgb(200, 0, 255);
+            font-size: 34px;
+            border-style: solid;
+            border-color: rgb(0,0,0);
+        }
+
+        .behavior_2 {
+            position: absolute;
+            width: 95px;
+            height: 70px;
+            right: 213px;
+            top: 190px;
+            background-color: rgb(200, 0, 255);
+            font-size: 34px;
+            border-style: solid;
+            border-color: rgb(0,0,0);
+        }
+
+        .encoder_data_1 {
+            position: absolute;
+            width: 150px;
+            top: 10px;
+            left: 420px;
+            color: rgb(255, 255, 255);
+            font-size: 30px;
+            font-weight: 150;
+        }
+
+        .encoder_data_2 {
+            position: absolute;
+            width: 150px;
+            top: 260px;
+            left: 420px;
+            color: rgb(255, 255, 255);
+            font-size: 30px;
+            font-weight: 150;
+        }
+
+        .encoder_data_3 {
+            position: absolute;
+            width: 150px;
+            top: 260px;
+            left: 80px;
+            color: rgb(255, 255, 255);
+            font-size: 30px;
+            font-weight: 150;
+        }
+
+        .encoder_data_4 {
+            position: absolute;
+            width: 150px;
+            top: 10px;
+            left: 80px;
+            color: rgb(255, 255, 255);
+            font-size: 30px;
+            font-weight: 150;
+        }
+
+        .array {
+            position: absolute;
+            width: 60px;
+            height: 180px;
+            top: 60px;
+            left: 290px;
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            background: linear-gradient(to bottom, rgb(255,255,255) 0%, rgb(255,255,255) 50%, rgb(0,0,0) 50%, rgb(0,0,0) 100%);
+            transform: rotate(0deg);
+        }
+
+        .chassis {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            top: 50px;
+            left: 220px;
+            border-style: solid;
+            border-color: rgb(255, 255, 255);
+        }
+
+        .timer {
+            line-height: 1.2;
+            font-size: 80px;
+            font-weight: 900;
+        }
+
+        .time {
+            position: absolute;
+            background-color: rgb(255, 0, 0);
+            width: 380px;
+            height: 100px;
+            top: 10px;
+            right: 20px;
+            border-style: solid;
+            border-color: rgb(0,0,0);
+        }
+
+        .minute {
+            position: absolute;
+            width: 70px;
+            height: 50px;
+            top: 10px;
+            right: 320px;
+        }
+
+        .second {
+            position: absolute;
+            width: 70px;
+            height: 50px;
+            top: 10px;
+            right: 195px;
+        }
+
+        .milli {
+            position: absolute;
+            width: 70px;
+            height: 50px;
+            top: 10px;
+            right: 70px;
+        }
+
+        .timer_button {
+            line-height: 1.4;
+            font-size: 55px;
+        }
+
+        .timer_start {
+            position: absolute;
+            background-color: rgb(255, 0, 0);
+            width: 190px;
+            height: 80px;
+            top: 110px;
+            right: 210px;
+            border-style: solid;
+            border-color: rgb(0,0,0);
+        }
+
+        .timer_stop {
+            position: absolute;
+            background-color: rgb(255, 0, 0);
+            width: 190px;
+            height: 80px;
+            top: 110px;
+            right: 20px;
+            border-style: solid;
+            border-color: rgb(0,0,0);
+        }
+    </style>
+</head>
+
+<body id="all">
+    <!-- ボタンエリア -->
+    <div class="button">
+        <div class="denger" id="denger">SAFE</div>
+        <div class="behavior_1" id="behavior_1">動作1</div>
+        <div class="behavior_2" id="behavior_2">動作2</div>
+    </div>
+    <!-- データ表示エリア-->
+    <div class="encoder_data_1" id="encoder_data_1">1: none</div>
+    <div class="encoder_data_2" id="encoder_data_2">2: none</div>
+    <div class="encoder_data_3" id="encoder_data_3">3: none</div>
+    <div class="encoder_data_4" id="encoder_data_4">4: none</div>
+    <!-- 進行方向表示エリア-->
+    <div class="direction">
+        <div class="array" id="array"></div>
+        <div class="chassis" id="chassis"></div>
+    </div>
+    <!-- タイマーエリア -->
+    <div class="timer" id="timer">
+        <div class="time" id="time"></div>
+        <div class="minute" id="minute">00:</div>
+        <div class="second" id="second">00:</div>
+        <div class="milli" id="milli">00</div>
+        <div class="timer_button">
+            <div class="timer_start" id="timer_start">START</div>
+            <div class="timer_stop" id="timer_stop">STOP</div>
+        </div>
+    </div>
+    <script>
+        var ws = new WebSocket("ws://192.168.11.40:8002/ws");
+
+        let rx, ry, lx, ly;
+        let cross, circle, square, triangle, l1, r1, l2, r2, vreate, option, l3, r3, up, down, left, right, ps, touchpad;
+        let Send_Data = "",Receive_Data = "";
+
+        const all = document.getElementById("all");
+        const denger = document.getElementById("denger");
+        const behavior_1 = document.getElementById("behavior_1");
+        const behavior_2 = document.getElementById("behavior_2");
+        const encoder_data_1 = document.getElementById("encoder_data_1");
+        const encoder_data_2 = document.getElementById("encoder_data_2");
+        const encoder_data_3 = document.getElementById("encoder_data_3");
+        const encoder_data_4 = document.getElementById("encoder_data_4");
+        const array = document.getElementById("array");
+        const timer = document.getElementById("timer");
+        const time = document.getElementById("time");
+        const timer_start = document.getElementById("timer_start");
+        const timer_stop = document.getElementById("timer_stop");
+        const minute = document.getElementById("minute");
+        const second = document.getElementById("second");
+        const milli = document.getElementById("milli");
+        
+        let minutes = 0, seconds = 0, millis = 0,interval;
+        let color,Denger = 0,denger_data = 0,r_denger_data;
+        let behavior = [0, 0], behavior_data = [0, 0];
+
+        function setup() {
+            all.style.backgroundColor = "rgb(0,0,0)";
+            //イベントリスナー追加
+            denger.addEventListener("touchstart",Denger_mode);
+            behavior_1.addEventListener("touchstart", Behavior_1);
+            behavior_2.addEventListener("touchstart", Behavior_2);
+            minute.addEventListener("touchstart", Timer_leset);
+            second.addEventListener("touchstart", Timer_leset);
+            milli.addEventListener("touchstart", Timer_leset);
+            timer_start.addEventListener("touchstart", Timer_start);
+            timer_stop.addEventListener("touchstart", Timer_stop);
+        }
+
+        //タイマー
+        // タイマーリセット
+        function Timer_leset() {
+            clearInterval(interval);
+            minutes = 0;
+            seconds = 0;
+            millis = 0;
+            milli.innerHTML = "00";
+            second.innerHTML = "00:";
+            minute.innerHTML = "00:";
+        }
+
+        // タイマー開始
+        function Timer_start() {
+            interval = setInterval(updataTimer, 10);
+        }
+
+        // タイマー停止
+        function Timer_stop() {
+            clearInterval(interval);
+        }
+
+        // タイマー更新
+        function updataTimer() {
+            millis++;
+            if (millis === 100) {
+                seconds++;
+                millis = 0;
+            }
+            if (seconds === 60) {
+                minutes++;
+                seconds = 0;
+            }
+            milli.innerHTML = millis.toString().padStart(2, "0");
+            second.innerHTML = seconds.toString().padStart(2, "0") + ":";
+            minute.innerHTML = minutes.toString().padStart(2, "0") + ":";
+        }
+
+        //Dengerモード
+        function Denger_mode() {
+            Denger = Denger + 1;
+            if ((Denger % 2) == true) {
+                denger.innerHTML = "DENGER";
+                denger.style.backgroundColor = "rgb(255,255,0)";
+                all.style.backgroundColor = "rgb(255,0,0)";
+                array.style.background = "linear-gradient(to bottom, rgb(255,255,255) 0%, rgb(255,255,255) 50%, rgb(255,0,0) 50%, rgb(255,0,0) 100%)";
+                denger_data = 1;
+            } else if ((Denger % 2) == false) {
+                denger.innerHTML = "SAFE";
+                denger.style.backgroundColor = "rgb(100,255,0)";
+                all.style.backgroundColor = "rgb(0,0,0)";
+                array.style.background = "linear-gradient(to bottom, rgb(255,255,255) 0%, rgb(255,255,255) 50%, rgb(0,0,0) 50%, rgb(0,0,0) 100%)";
+                denger_data = 0;
+            }
+        }
+
+        //規定動作実行 2動作
+        function Behavior_1() {
+            behavior[0] = behavior[0] + 1;
+            if ((behavior[0] % 2) == true) {
+                behavior_1.innerHTML = "停止";
+                behavior_data[0] = 1;
+            } else if ((behavior[0] % 2) == false) {
+                behavior_1.innerHTML = "動作1";
+                behavior_data[0] = 0;
+            }
+        }
+
+        function Behavior_2() {
+            behavior[1] = behavior[1] + 1;
+            if ((behavior[1] % 2) == true) {
+                behavior_2.innerHTML = "停止";
+                behavior_data[1] = 1;
+            } else if ((behavior[1] % 2) == false) {
+                behavior_2.innerHTML = "動作2";
+                behavior_data[1] = 0;
+            }
+        }
+
+        function updateGamepadValues() {
+            var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+            var gamepad = gamepads[0]; // 0番目のゲームパッドを取得
+
+            if (gamepad) {
+                // ジョイスティックの値を取得
+                rx = gamepad.axes[0] * 100 + 100;
+                ry = gamepad.axes[1] * -100 + 100;
+                lx = gamepad.axes[2] * 100 + 100;
+                ly = gamepad.axes[3] * -100 + 100;
+                
+                cross = gamepad.buttons[0].pressed ? 1 : 0;
+                circle = gamepad.buttons[1].pressed ? 1 : 0;
+                square = gamepad.buttons[2].pressed ? 1 : 0;
+                triangle = gamepad.buttons[3].pressed ? 1 : 0;
+                l1 = gamepad.buttons[4].pressed ? 1 : 0;
+                r1 = gamepad.buttons[5].pressed ? 1 : 0;
+                l2 = gamepad.buttons[6].pressed ? 1 : 0; //value * 100;　押し感はこっち
+                r2 = gamepad.buttons[7].pressed ? 1 : 0; //value * 100;　押し感はこっち
+                create = gamepad.buttons[8].pressed ? 1 : 0;
+                option = gamepad.buttons[9].pressed ? 1 : 0;
+                l3 = gamepad.buttons[10].pressed ? 1 : 0;
+                r3 = gamepad.buttons[11].pressed ? 1 : 0;
+                up = gamepad.buttons[12].pressed ? 1 : 0;
+                down = gamepad.buttons[13].pressed ? 1 : 0;
+                left = gamepad.buttons[14].pressed ? 1 : 0;
+                right = gamepad.buttons[15].pressed ? 1 : 0;
+                ps = gamepad.buttons[16].pressed ? 1 : 0;
+            }
+        }
+
+        setInterval(updateGamepadValues, 0);
+
+        setInterval(() => {
+            Send_Data = `${rx.toFixed(0)},${ry.toFixed(0)},${lx.toFixed(0)},${ly.toFixed(0)},${cross},${circle},${square},${triangle},${l1},${r1},${l2},${r2},${create},${option},${l3},${r3},${up},${down},${left},${right},${ps},${denger_data},${behavior_data[0]},${behavior_data[1]}`;
+            ws.send(Send_Data);
+        }, 0);
+
+        ws.onmessage = function(event) {
+            var receiveData = event.data;
+            var dataArray = receiveData.split(",");
+            var r_denger = parseInt(dataArray[0]);
+            var r_behavior_1 = parseInt(dataArray[1]);
+            var r_behavior_2 = parseInt(dataArray[2]);
+            var r_behavior_3 = parseInt(dataArray[3]);
+            var r_behavior_4 = parseInt(dataArray[4]);
+            var r_time = parseInt(dataArray[5]);
+            var r_color = parseInt(dataArray[6]);
+            if(r_denger == 1){
+                denger.innerHTML = "DENGER";
+                denger.style.backgroundColor = "rgb(255,255,0)";
+                all.style.backgroundColor = "rgb(255,0,0)";
+                array.style.background = "linear-gradient(to bottom, rgb(255,255,255) 0%, rgb(255,255,255) 50%, rgb(255,0,0) 50%, rgb(255,0,0) 100%)";
+                denger_data = 1;
+            }else if(r_denger == 0){
+                denger.innerHTML = "SAFE";
+                denger.style.backgroundColor = "rgb(100,255,0)";
+                all.style.backgroundColor = "rgb(0,0,0)";
+                array.style.background = "linear-gradient(to bottom, rgb(255,255,255) 0%, rgb(255,255,255) 50%, rgb(0,0,0) 50%, rgb(0,0,0) 100%)";
+                denger_data = 0;
+            }
+
+            if(r_behavior_1 == 1){
+                behavior_1.innerHTML = "停止";
+                behavior_data[0] = 1;
+            }else if(r_behavior_1 == 0){
+                behavior_1.innerHTML = "動作1";
+                behavior_data[0] = 0;
+            }
+            if(r_behavior_2 == 1){
+                behavior_2.innerHTML = "停止";
+                behavior_data[1] == 1;
+            }else if(r_behavior_2 = 0){
+                behavior_2.innerHTML = "動作1";
+                behavior_data[1] == 0;
+            }
+
+            if(r_time == 1){
+                clearInterval(interval);
+                minutes = 0;
+                seconds = 0;
+                millis = 0;
+                milli.innerHTML = "00";
+                second.innerHTML = "00:";
+                minute.innerHTML = "00:";
+            }else if(r_time == 2){
+                interval = setInterval(updataTimer, 10);
+            }else if(r_time == 3){   
+                clearInterval(interval);
+            }
+
+            if(r_color == 0){
+                time.style.backgroundColor = "rgb(255,0,0)"
+                timer_start.style.backgroundColor = "rgb(255,0,0)"
+                timer_stop.style.backgroundColor = "rgb(255,0,0)"
+            }else if(r_color == 1){
+                time.style.backgroundColor = "rgb(0,0,255)"
+                timer_start.style.backgroundColor = "rgb(0,0,255)"
+                timer_stop.style.backgroundColor = "rgb(0,0,255)"
+            }
+        }
+
+
+        // 初期設定関数の呼び出し
+        setup();
+    </script>
+</body>
