@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>button_test</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anta&display=swap">
+    <style>
+        body {
+            background: rgb(0, 0, 0);
+            text-align: center;
+            font-family: "Anta";
+        }
+
+        .button_UP {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            top: 10px;
+            right: 10px;
+            background:
+                linear-gradient(90deg, transparent 40%, rgb(255, 255, 255) 40%, rgb(255, 255, 255) 60%, transparent 60%),
+                linear-gradient(0deg, transparent 40%, rgb(255, 255, 255) 40%, rgb(255, 255, 255) 60%, transparent 60%);
+        }
+
+        .button_Down {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            top: 160px;
+            right: 10px;
+            background:
+                linear-gradient(0deg, transparent 40%, rgb(255, 255, 255) 40%, rgb(255, 255, 255) 60%, transparent 60%);
+        }
+
+        .behavior_list {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            top: 90px;
+            right: 5px;
+            line-height: 1.25;
+            font-weight: 900;
+            font-size: 60px;
+            background-color: rgb(20, 203, 173);
+        }
+
+        .robot_mode {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            top: 250px;
+            right: 10px;
+            line-height: 2.3;
+            font-weight: 900;
+            font-size: 30px;
+            background-color: rgb(20, 203, 173);
+        }
+
+        .button-behavior-1 {
+            position: absolute;
+            width: 100px;
+            height: 30px;
+            top: 10px;
+            right: 320px;
+            line-height: 1.5;
+            font-weight: 900;
+            font-size: 30px;
+        }
+
+        .button-behavior-2 {
+            position: absolute;
+            width: 100px;
+            height: 30px;
+            top: 10px;
+            right: 220px;
+            line-height: 1.5;
+            font-weight: 900;
+            font-size: 30px;
+        }
+
+        .button-behavior-3 {
+            position: absolute;
+            width: 100px;
+            height: 30px;
+            top: 10px;
+            right: 120px;
+            line-height: 1.5;
+            font-weight: 900;
+            font-size: 30px;
+        }
+
+        .behavior-0,
+        .behavior-1,
+        .behavior-2,
+        .behavior-3,
+        .behavior-4,
+        .behavior-5,
+        .behavior-6,
+        .behavior-7,
+        .behavior-8,
+        .behavior-9,
+        .behavior-10,
+        .behavior-11,
+        .behavior-12,
+        .behavior-13,
+        .behavior-14,
+        .behavior-15,
+        .behavior-16,
+        .behavior-17,
+        .behavior-18,
+        .behavior-19,
+        .behavior-20 {
+            position: relative;
+            background-color: rgb(20, 203, 173);
+            z-index: 3;
+        }
+
+        .stop {
+            position: absolute;
+            top: 220px;
+            left: 60px;
+            width: 150px;
+            height: 100px;
+            line-height: 3.3;
+            font-weight: 900;
+            font-size: 30px;
+            background-color: rgb(255, 255, 0);
+        }
+
+        .button_color {
+            line-height: 3.3;
+            font-size: 31px;
+            font-weight: 900;
+        }
+
+        .home {
+            position: absolute;
+            top: 220px;
+            width: 50px;
+            height: 100px;
+            line-height: 3;
+            font-weight: 900;
+            font-size: 16px;
+            background-color: rgb(20, 203, 173);
+        }
+
+        .blue {
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            top: 0;
+            right: 205px;
+            bottom: 0;
+            left: 0;
+            margin: auto;
+            background-color: rgb(0, 0, 255);
+        }
+
+        .red {
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 205px;
+            margin: auto;
+            background-color: rgb(255, 0, 0);
+        }
+
+        .map {
+            position: absolute;
+            top: 10px;
+            left: 25%;
+        }
+
+        .background {
+            position: relative;
+            width: 504px;
+            height: 304px;
+            background-color: rgb(254, 251, 219);
+            border-style: solid;
+            border-width: 2px;
+            border-color: rgb(231, 33, 0);
+        }
+
+        .start-zone {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-color: rgb(231, 33, 0);
+            right: 0px;
+            bottom: 0px;
+            border-style: solid;
+            border-width: 2px;
+            border-color: rgb(0, 0, 0);
+        }
+
+        .button1,
+        .button2,
+        .button3 {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-style: solid;
+            border-width: 2px;
+            border-color: rgb(0, 0, 0);
+            font-weight: 100px;
+            font-size: 30px;
+            line-height: 1.5;
+            z-index: 2;
+            border-radius: 50%;
+        }
+
+        .button1 {
+            bottom: 200px;
+            right: 225px;
+        }
+
+        .button2 {
+            bottom: 200px;
+            right: 50px;
+        }
+
+        .button3 {
+            bottom: 50px;
+            right: 50px;
+        }
+
+        .robot {
+            position: absolute;
+            right: 16.5px;
+            bottom: 16.55px;
+            width: 117px;
+            height: 116.9px;
+            border-style: solid;
+            border-color: rgb(114, 110, 110);
+            background-color: rgb(114, 110, 110);
+            z-index: 1;
+            transform: rotate(0deg);
+            transform-origin: center center;
+        }
+
+        .position {
+            position: absolute;
+            top: 110px;
+            left: 50px;
+            color: rgb(255, 255, 255);
+            font-weight: 100px;
+            font-size: 30px;
+        }
+
+        .position-x,
+        .position-y {
+            position: absolute;
+            width: 95px;
+            height: 50px;
+            top: 150px;
+            line-height: 1;
+            border-style: solid;
+            border-color: rgb(255, 255, 255);
+            color: rgb(255, 255, 255);
+            font-weight: 100px;
+            font-size: 20px;
+            line-height: 3;
+        }
+
+        .position-x {
+            left: 10px;
+        }
+
+        .position-y {
+            left: 110px;
+        }
+
+        .timer {
+            line-height: 1.2;
+            font-size: 40px;
+            font-weight: 900;
+        }
+
+        .time {
+            position: absolute;
+            background-color: rgb(20, 203, 173);
+            width: 190px;
+            height: 50px;
+            top: 10px;
+            left: 10px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+        }
+
+        .minute,
+        .second,
+        .milli {
+            position: absolute;
+            width: 35px;
+            height: 25px;
+            top: 10px;
+        }
+
+        .minute {
+            left: 20px;
+        }
+
+        .second {
+            left: 82px;
+        }
+
+        .milli {
+            left: 144px;
+        }
+
+        .timer-button {
+            position: absolute;
+            background-color: rgb(20, 203, 173);
+            width: 190px;
+            height: 40px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+            top: 63px;
+            left: 10px;
+            line-height: 1.4;
+            font-size: 27px;
+        }
+    </style>
+</head>
+
+<body id="all">
+    <!-- ボタンエリア -->
+    <div class="button-behavior-1" id="button-behavior-1">
+        <div class="behavior-0" id="behavior_0">動作0</div>
+        <div class="behavior-1" id="behavior_1">動作1</div>
+        <div class="behavior-2" id="behavior_2">動作2</div>
+        <div class="behavior-3" id="behavior_3">動作3</div>
+        <div class="behavior-4" id="behavior_4">動作4</div>
+        <div class="behavior-5" id="behavior_5">動作5</div>
+        <div class="behavior-6" id="behavior_6">動作6</div>
+    </div>
+    <div class="button-behavior-2" id="button-behavior-2">
+        <div class="behavior-7" id="behavior_7">動作7</div>
+        <div class="behavior-8" id="behavior_8">動作8</div>
+        <div class="behavior-9" id="behavior_9">動作9</div>
+        <div class="behavior-10" id="behavior_10">動作10</div>
+        <div class="behavior-11" id="behavior_11">動作11</div>
+        <div class="behavior-12" id="behavior_12">動作12</div>
+        <div class="behavior-13" id="behavior_13">動作13</div>
+    </div>
+    <div class="button-behavior-3" id="button-behavior-3">
+        <div class="behavior-14" id="behavior_14">動作14</div>
+        <div class="behavior-15" id="behavior_15">動作15</div>
+        <div class="behavior-16" id="behavior_16">動作16</div>
+        <div class="behavior-17" id="behavior_17">動作17</div>
+        <div class="behavior-18" id="behavior_18">動作18</div>
+        <div class="behavior-19" id="behavior_19">動作19</div>
+        <div class="behavior-20" id="behavior_20">動作20</div>
+    </div>
+    <div id="button_UD">
+        <div class="button_UP" id="button_UP"></div>
+        <div class="button_Down" id="button_Down"></div>
+        <div class="behavior_list" id="behavior_list">0</div>
+    </div>
+    <div class="robot_mode" id="robot_mode">全自動</div>
+    <div class="stop" id="stop">STOP</div>
+    <div class="button_color" id="button_color">
+        <div class="blue" id="blue">青チーム</div>
+        <div class="red" id="red">赤チーム</div>
+    </div>
+    <div class="home" id="home">color select</div>
+
+    <!-- タイマーエリア -->
+    <div class="timer" id="timer">
+        <div class="time" id="time"></div>
+        <div class="minute" id="minute">00:</div>
+        <div class="second" id="second">00:</div>
+        <div class="milli" id="milli">00</div>
+        <div class="timer-button" id="timer-button">START</div>
+    </div>
+
+    <!-- デバック表示エリア-->
+    <div id="position_debug">
+        <div class="position">自己位置</div>
+        <div class="position-x" id="position_x">X: xxxx</div>
+        <div class="position-y" id="position_y">Y: xxxx</div>
+    </div>
+
+    <!-- マップエリア -->
+    <div class="map" id="map">
+        <div class="background" id="background">
+            <div class="start-zone" id="start_zone"></div>
+            <div class="button1" id="button1">1</div>
+            <div class="button2" id="button2">2</div>
+            <div class="button3" id="button3">3</div>
+            <div class="robot" id="robot"></div>
+        </div>
+    </div>
+
+    <script>
+        const ws = new WebSocket("ws://192.168.98.216:8010/ws");
+
+        let behavior = 0,
+            list_count = 0,
+            mode = 0, mode_count = 0,
+            button = [0, 0, 0], button_count = [0, 0, 0],
+            color = 0, STOP = 0, stop_count = 0,
+            minutes = 0, seconds = 0, millis = 0, interval = 0, count = 0,
+            position_x = 0, position_y = 0, position_direction,
+            rx, ry, lx, ly,
+            cross, circle, square, triangle, lb, rb, lt, rt, SEL, STA, la, ra, up, down, left, right;
+
+        let Send_Data = "", Receive_Data = "";
+
+        const robot_size_x = 117, robot_size_y = 116.9;
+
+        const all = document.getElementById("all");
+
+        const button_behavior_1 = document.getElementById("button-behavior-1");
+        const button_behavior_2 = document.getElementById("button-behavior-2");
+        const button_behavior_3 = document.getElementById("button-behavior-3");
+        const behavior_0 = document.getElementById("behavior_0");
+        const behavior_1 = document.getElementById("behavior_1");
+        const behavior_2 = document.getElementById("behavior_2");
+        const behavior_3 = document.getElementById("behavior_3");
+        const behavior_4 = document.getElementById("behavior_4");
+        const behavior_5 = document.getElementById("behavior_5");
+        const behavior_6 = document.getElementById("behavior_6");
+        const behavior_7 = document.getElementById("behavior_7");
+        const behavior_8 = document.getElementById("behavior_8");
+        const behavior_9 = document.getElementById("behavior_9");
+        const behavior_10 = document.getElementById("behavior_10");
+        const behavior_11 = document.getElementById("behavior_11");
+        const behavior_12 = document.getElementById("behavior_12");
+        const behavior_13 = document.getElementById("behavior_13");
+        const behavior_14 = document.getElementById("behavior_14");
+        const behavior_15 = document.getElementById("behavior_15");
+        const behavior_16 = document.getElementById("behavior_16");
+        const behavior_17 = document.getElementById("behavior_17");
+        const behavior_18 = document.getElementById("behavior_18");
+        const behavior_19 = document.getElementById("behavior_19");
+        const behavior_20 = document.getElementById("behavior_20");
+        const button_UP = document.getElementById("button_UP");
+        const button_Down = document.getElementById("button_Down");
+        const behavior_list = document.getElementById("behavior_list");
+        const robot_mode = document.getElementById("robot_mode");
+        const button_color = document.getElementById("button_color");
+        const Stop = document.getElementById("stop");
+        const blue = document.getElementById("blue");
+        const red = document.getElementById("red");
+        const home = document.getElementById("home");
+
+        const timer = document.getElementById("timer");
+        const time = document.getElementById("time");
+        const timer_button = document.getElementById("timer-button");
+        const minute = document.getElementById("minute");
+        const second = document.getElementById("second");
+        const milli = document.getElementById("milli");
+
+        const position_debug = document.getElementById("position_debug");
+        const position_X = document.getElementById("position_x");
+        const position_Y = document.getElementById("position_y");
+
+        const map = document.getElementById("map");
+        const background = document.getElementById("background");
+        const start_zone = document.getElementById("start_zone");
+        const button_1 = document.getElementById("button1");
+        const button_2 = document.getElementById("button2");
+        const button_3 = document.getElementById("button3");
+        const robot = document.getElementById("robot");
+
+        // 初期設定
+        function setup() {
+            all.style.backgroundColor = "rgb(0,0,0)";
+            button_color.style.display = "block";
+            button_behavior_1.style.display = "none";
+            button_behavior_2.style.display = "none";
+            button_behavior_3.style.display = "none";
+            button_UP.style.display = "none";
+            button_Down.style.display = "none";
+            behavior_list.style.display = "none";
+            robot_mode.style.display = "none";
+            Stop.style.display = "none";
+            home.style.display = "none";
+            timer.style.display = "none";
+            position_debug.style.display = "none";
+            map.style.display = "none";
+            // イベントリスナー追加
+            behavior_0.addEventListener("touchstart", Behavior_0);
+            behavior_1.addEventListener("touchstart", Behavior_1);
+            behavior_2.addEventListener("touchstart", Behavior_2);
+            behavior_3.addEventListener("touchstart", Behavior_3);
+            behavior_4.addEventListener("touchstart", Behavior_4);
+            behavior_5.addEventListener("touchstart", Behavior_5);
+            behavior_6.addEventListener("touchstart", Behavior_6);
+            behavior_7.addEventListener("touchstart", Behavior_7);
+            behavior_8.addEventListener("touchstart", Behavior_8);
+            behavior_9.addEventListener("touchstart", Behavior_9);
+            behavior_10.addEventListener("touchstart", Behavior_10);
+            behavior_11.addEventListener("touchstart", Behavior_11);
+            behavior_12.addEventListener("touchstart", Behavior_12);
+            behavior_13.addEventListener("touchstart", Behavior_13);
+            behavior_14.addEventListener("touchstart", Behavior_14);
+            behavior_15.addEventListener("touchstart", Behavior_15);
+            behavior_16.addEventListener("touchstart", Behavior_16);
+            behavior_17.addEventListener("touchstart", Behavior_17);
+            behavior_18.addEventListener("touchstart", Behavior_18);
+            behavior_19.addEventListener("touchstart", Behavior_19);
+            behavior_20.addEventListener("touchstart", Behavior_20);
+            button_UP.addEventListener("touchstart", button_up);
+            button_Down.addEventListener("touchstart", button_down);
+            behavior_list.addEventListener("touchstart", behavior_List);
+            robot_mode.addEventListener("touchstart", Robot_mode);
+            Stop.addEventListener("touchstart", all_stop);
+            blue.addEventListener("touchstart", Blue);
+            red.addEventListener("touchstart", Red);
+            home.addEventListener("touchstart", Home);
+            minute.addEventListener("touchstart", Timer_reset);
+            second.addEventListener("touchstart", Timer_reset);
+            milli.addEventListener("touchstart", Timer_reset);
+            timer_button.addEventListener("touchstart", Timer_button);
+            button_1.addEventListener("touchstart", Button_1);
+            button_2.addEventListener("touchstart", Button_2);
+            button_3.addEventListener("touchstart", Button_3);
+        }
+
+
+        //チーム選択
+        function Home() {
+            button_color.style.display = "block";
+            button_behavior_1.style.display = "none";
+            button_behavior_2.style.display = "none";
+            button_behavior_3.style.display = "none";
+            button_UP.style.display = "none";
+            button_Down.style.display = "none";
+            behavior_list.style.display = "none";
+            robot_mode.style.display = "none";
+            Stop.style.display = "none";
+            home.style.display = "none";
+            timer.style.display = "none";
+            position_debug.style.display = "none";
+            map.style.display = "none";
+
+            button_1.style.backgroundColor = "rgb(114, 110, 110,0)"
+            button[0] = 0;
+            button_2.style.backgroundColor = "rgb(114, 110, 110,0)"
+            button[1] = 0;
+            button_3.style.backgroundColor = "rgb(114, 110, 110,0)"
+            button[2] = 0;
+        }
+
+        //青チーム
+        function Blue() {
+            button_color.style.display = "none";
+            button_UP.style.display = "block";
+            button_Down.style.display = "block";
+            behavior_list.style.display = "block";
+            robot_mode.style.display = "block";
+            Stop.style.display = "block";
+            home.style.display = "block";
+            timer.style.display = "block";
+            position_debug.style.display = "block";
+            map.style.display = "block";
+
+            background.style.borderColor = "rgb(0,0,255)";
+            start_zone.style.backgroundColor = "rgb(0,0,255)";
+            start_zone.style.right = "350px";
+            robot.style.right = "366.5px";
+            robot.style.bottom = "16.55px";
+            button_1.style.right = "225px";
+            button_1.style.bottom = "200px";
+            button_2.style.right = "400px";
+            button_2.style.bottom = "200px";
+            button_3.style.right = "400px";
+            button_3.style.bottom = "50px";
+
+            color = 0;
+        }
+
+
+        //赤チーム
+        function Red() {
+            button_color.style.display = "none";
+            button_UP.style.display = "block";
+            button_Down.style.display = "block";
+            behavior_list.style.display = "block";
+            robot_mode.style.display = "block";
+            Stop.style.display = "block";
+            home.style.display = "block";
+            timer.style.display = "block";
+            position_debug.style.display = "block";
+            map.style.display = "block";
+
+            background.style.borderColor = "rgb(255,0,0)"
+            start_zone.style.backgroundColor = "rgb(255,0,0)";
+            start_zone.style.right = "0px";
+            robot.style.right = "16.5px";
+            robot.style.bottom = "16.55px";
+            button_1.style.right = "225px";
+            button_1.style.bottom = "200px";
+            button_2.style.right = "50px";
+            button_2.style.bottom = "200px";
+            button_3.style.right = "50px";
+            button_3.style.bottom = "50px";
+
+            color = 1;
+        }
+
+        //規定動作実行 20動作
+        function Behavior_0() {
+            behavior = 0;
+        }
+        function Behavior_1() {
+            behavior = 1;
+        }
+        function Behavior_2() {
+            behavior = 2;
+        }
+        function Behavior_3() {
+            behavior = 3;
+        }
+        function Behavior_4() {
+            behavior = 4;
+        }
+        function Behavior_5() {
+            behavior = 5;
+        }
+        function Behavior_6() {
+            behavior = 6;
+        }
+        function Behavior_7() {
+            behavior = 7;
+        }
+        function Behavior_8() {
+            behavior = 8;
+        }
+        function Behavior_9() {
+            behavior = 9;
+        }
+        function Behavior_10() {
+            behavior = 10;
+        }
+        function Behavior_11() {
+            behavior = 11;
+        }
+        function Behavior_12() {
+            behavior = 12;
+        }
+        function Behavior_13() {
+            behavior = 13;
+        }
+        function Behavior_14() {
+            behavior = 14;
+        }
+        function Behavior_15() {
+            behavior = 15;
+        }
+        function Behavior_16() {
+            behavior = 16;
+        }
+        function Behavior_17() {
+            behavior = 17;
+        }
+        function Behavior_18() {
+            behavior = 18;
+        }
+        function Behavior_19() {
+            behavior = 19;
+        }
+        function Behavior_20() {
+            behavior = 20;
+        }
+
+        function button_up() {
+            if (behavior == 20) {
+                behavior = 20;
+            } else {
+                behavior = behavior + 1;
+            }
+        }
+        function button_down() {
+            if (behavior == 0) {
+                behavior = 0;
+            } else {
+                behavior = behavior - 1;
+            }
+        }
+
+        function behavior_List() {
+            list_count = list_count + 1;
+            if ((list_count % 2) == true) {
+                button_behavior_1.style.display = "none";
+                button_behavior_2.style.display = "none";
+                button_behavior_3.style.display = "none";
+            } else if ((list_count % 2) == false) {
+                button_behavior_1.style.display = "block";
+                button_behavior_2.style.display = "block";
+                button_behavior_3.style.display = "block";
+            }
+        }
+
+        function Robot_mode() {
+            mode_count = mode_count + 1;
+            if ((mode_count % 2) == true) {
+                robot_mode.innerHTML = "半自動";
+                robot_mode.style.backgroundColor = "rgb(157, 20, 203)";
+                mode = 1;
+            } else if ((mode_count % 2) == false) {
+                robot_mode.innerHTML = "全自動";
+                robot_mode.style.backgroundColor = "rgb(20, 203, 173)";
+                mode = 0;
+            }
+        }
+
+        //ストップ
+        function all_stop() {
+            stop_count = stop_count + 1;
+            if ((stop_count % 2) == true) {
+                Stop.innerHTML = "START";
+                Stop.style.backgroundColor = "rgb(0,255,0)"
+                STOP = 1;
+            } else if ((stop_count % 2) == false) {
+                Stop.innerHTML = "STOP";
+                Stop.style.backgroundColor = "rgb(255,255,0)"
+                STOP = 0;
+            }
+        }
+
+        //移動座標
+        function Button_1() {
+            button_1.style.backgroundColor = "rgb(114, 110, 110,1)";
+            button_2.style.backgroundColor = "rgb(114, 110, 110,0)";
+            button_3.style.backgroundColor = "rgb(114, 110, 110,0)";
+            button[0] = 1;
+            button[1] = 0;
+            button[2] = 0;
+        }
+        function Button_2() {
+            button_1.style.backgroundColor = "rgb(114, 110, 110,0)";
+            button_2.style.backgroundColor = "rgb(114, 110, 110,1)";
+            button_3.style.backgroundColor = "rgb(114, 110, 110,0)";
+            button[0] = 0;
+            button[1] = 1;
+            button[2] = 0;
+        }
+        function Button_3() {
+            button_1.style.backgroundColor = "rgb(114, 110, 110,0)";
+            button_2.style.backgroundColor = "rgb(114, 110, 110,0)";
+            button_3.style.backgroundColor = "rgb(114, 110, 110,1)";
+            button[0] = 0;
+            button[1] = 0;
+            button[2] = 1;
+        }
+
+        //タイマー
+        //タイマーリセット
+        function Timer_reset() {
+            clearInterval(interval);
+            minutes = 0;
+            seconds = 0;
+            millis = 0;
+            milli.innerHTML = "00";
+            second.innerHTML = "00:";
+            minute.innerHTML = "00:";
+        }
+
+        // タイマー開始、停止
+        function Timer_button() {
+            if (count % 2 === 0) {
+                interval = setInterval(updateTimer, 10);
+                timer_button.innerHTML = "STOP";
+            } else {
+                clearInterval(interval);
+                timer_button.innerHTML = "START";
+            }
+            count++;
+        }
+
+
+        // タイマー更新
+        function updateTimer() {
+            millis++;
+            if (millis === 100) {
+                seconds++;
+                millis = 0;
+            }
+            if (seconds === 60) {
+                minutes++;
+                seconds = 0;
+            }
+            milli.innerHTML = millis.toString().padStart(2, "0");
+            second.innerHTML = seconds.toString().padStart(2, "0") + ":";
+            minute.innerHTML = minutes.toString().padStart(2, "0") + ":";
+        }
+
+        function updateGamepadValues() {
+            var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+            var gamepad = gamepads[0]; // 0番目のゲームパッドを取得
+
+            if (gamepad) {
+                // ジョイスティックの値を取得
+                lx = gamepad.axes[0] * 100 + 100;
+                ly = gamepad.axes[1] * -100 + 100;
+                rx = gamepad.axes[2] * 100 + 100;
+                ry = gamepad.axes[3] * -100 + 100;
+
+                cross = gamepad.buttons[0].pressed ? 1 : 0;
+                circle = gamepad.buttons[1].pressed ? 1 : 0;
+                square = gamepad.buttons[2].pressed ? 1 : 0;
+                triangle = gamepad.buttons[3].pressed ? 1 : 0;
+                l1 = gamepad.buttons[4].pressed ? 1 : 0;
+                r1 = gamepad.buttons[5].pressed ? 1 : 0;
+                l2 = gamepad.buttons[6].pressed ? 1 : 0; //value * 100;　押し感はこっち
+                r2 = gamepad.buttons[7].pressed ? 1 : 0; //value * 100;　押し感はこっち
+                create = gamepad.buttons[8].pressed ? 1 : 0;
+                option = gamepad.buttons[9].pressed ? 1 : 0;
+                l3 = gamepad.buttons[10].pressed ? 1 : 0;
+                r3 = gamepad.buttons[11].pressed ? 1 : 0;
+                up = gamepad.buttons[12].pressed ? 1 : 0;
+                down = gamepad.buttons[13].pressed ? 1 : 0;
+                left = gamepad.buttons[14].pressed ? 1 : 0;
+                right = gamepad.buttons[15].pressed ? 1 : 0;
+                ps = gamepad.buttons[16].pressed ? 1 : 0;
+                touchpad = gamepad.buttons[17].pressed ? 1 : 0;
+            }
+        }
+
+        setInterval(updateGamepadValues, 0);
+
+        //通信
+        setInterval(() => {
+            behavior_list.innerHTML = behavior;
+            Send_Data = `${behavior},${mode},${button[0]},${button[1]},${button[2]},${color},${STOP},${lx.toFixed(0)},${ly.toFixed(0)},${rx.toFixed(0)},${ry.toFixed(0)},${cross},${circle},${square},${triangle},${lb},${rb},${lt},${rt},${SEL},${STA},${la},${ra},${up},${down},${left},${right}`;
+            ws.send(Send_Data);
+        }, 0);
+
+        ws.onmessage = function (event) {
+            var receiveData = event.data;
+            var dataArray = receiveData.split(",");
+            position_x = parseInt(dataArray[0]);
+            position_y = parseInt(dataArray[1]);
+            position_direction = parseInt(dataArray[2]);
+            if (color == 1) {
+                robot.style.right = (position_x * 0.1 + 16.5) + "px";
+            } else if (color == 0) {
+                robot.style.right = (-position_x * 0.1 + 366.5) + "px";
+            }
+            robot.style.bottom = (position_y * 0.1 + 16.55) + "px";
+            robot.style.transform = "rotate(" + position_direction + "deg)";
+            position_X.innerHTML = "X: " + position_x;
+            position_Y.innerHTML = "Y: " + position_y;
+        }
+
+
+        // 初期設定関数の呼び出し
+        setup();
+    </script>
+</body>
+
+</html>
