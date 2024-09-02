@@ -183,6 +183,7 @@
             border-bottom: 20px solid transparent;
             border-left: 40px solid rgb(255, 255, 255);
             transform-origin: left center;
+            z-index: 2;
         }
 
         .arrow_deg {
@@ -191,9 +192,10 @@
             left: 100px;
             width: 50px;
             height: 20px;
-            background-color: rgb(255, 255, 255);
+            background-color: rgb(20, 203, 173);
             transform-origin: left center;
             transform: rotate(-30deg);
+            z-index: 1;
         }
 
         .arrow_deg::after {
@@ -203,7 +205,7 @@
             right: -40px;
             border: 20px solid;
             border-color: transparent;
-            border-left: 20px solid #ffffff;
+            border-left: 20px solid rgb(20, 203, 173);
         }
 
         .timer {
@@ -569,13 +571,17 @@
             robot.style.left = ((5000 - position_x) * 0.05) + "px";
             robot.style.top = (position_y * 0.05) + "px";
             robot.style.transform = "rotate(" + position_direction + "deg)";
-            arrow.style.transform = "rotate(" + -(Math.atan2(vy, vx) * (180 / Math.PI)) + "deg)" + "scale(" + (Math.sqrt(vx * vx + vy + vy) / 1000) * 3 + ")";
+            arrow.style.transform = "rotate(" + -(Math.atan2(vy, vx) * (180 / Math.PI)) + "deg)" + "scale(" + (Math.sqrt(vx * vx + vy * vy) / 1000) * 3 + ")";
             position_X.innerHTML = "X: " + position_x;
             position_Y.innerHTML = "Y: " + position_y;
-            if (vdeg >= 0) {
+            if (vdeg > 0) {
+                arrow_deg.style.display = "block";
                 arrow_deg.style.transform = "rotate(210deg)";
-            } else {
+            } else if (vdeg < 0) {
+                arrow_deg.style.display = "block";
                 arrow_deg.style.transform = "rotate(-30deg)";
+            } else if (vdeg == 0) {
+                arrow_deg.style.display = "none";
             }
             arrow_deg.style.width = vdeg / 2 + "px";
         }
