@@ -185,6 +185,27 @@
             transform-origin: left center;
         }
 
+        .arrow_deg {
+            position: relative;
+            top: 170px;
+            left: 100px;
+            width: 50px;
+            height: 20px;
+            background-color: rgb(255, 255, 255);
+            transform-origin: left center;
+            transform: rotate(-30deg);
+        }
+
+        .arrow_deg::after {
+            position: absolute;
+            content: "";
+            top: -10px;
+            right: -40px;
+            border: 20px solid;
+            border-color: transparent;
+            border-left: 20px solid #ffffff;
+        }
+
         .timer {
             line-height: 1.2;
             font-size: 40px;
@@ -271,6 +292,7 @@
     </div>
     <div class="v_debug" id="v_debug">
         <div class="arrow" id="arrow"></div>
+        <div class="arrow_deg" id="arrow_deg"></div>
     </div>
 
     <!-- マップエリア -->
@@ -319,6 +341,7 @@
         const position_Y = document.getElementById("position_y");
         const v_debug = document.getElementById("v_debug");
         const arrow = document.getElementById("arrow");
+        const arrow_deg = document.getElementById("arrow_deg");
 
         const map = document.getElementById("map");
         const background = document.getElementById("background");
@@ -549,6 +572,12 @@
             arrow.style.transform = "rotate(" + -(Math.atan2(vy, vx) * (180 / Math.PI)) + "deg)" + "scale(" + (Math.sqrt(vx * vx + vy + vy) / 1000) * 3 + ")";
             position_X.innerHTML = "X: " + position_x;
             position_Y.innerHTML = "Y: " + position_y;
+            if (vdeg >= 0) {
+                arrow_deg.style.transform = "rotate(210deg)";
+            } else {
+                arrow_deg.style.transform = "rotate(-30deg)";
+            }
+            arrow_deg.style.width = vdeg / 2 + "px";
         }
 
 
