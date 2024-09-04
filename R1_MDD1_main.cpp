@@ -1,4 +1,3 @@
-/*V,Θ，ωからVy,Vx,ωを導出する部分がおかしいです*/
 
 #include "stm32f4xx.h"
 #include "stm32f4xx_nucleo.h"
@@ -15,23 +14,23 @@ uint8_t sending_data[8],receiving_serial_data[8];//通信データ
 Gpio led;
 
 double motor_target[4],motor_out[4],
-	vx,vy,vz,speed,deg,deg_s;
+	vx,vy,vz,speed,deg,deg_s,VX,VY;
 double R_L = 1196.54,O_diameter = 100;
 
 void communication(){
 	for (int i = 0; i < 8; i++) {
 			if (receiving_serial_data[i] == 0xA5 && receiving_serial_data[(i + 1) % 8] == 0xA5) {
-				speed = (double)(int16_t(receiving_serial_data[(i + 2) % 8] << 8 | receiving_serial_data[(i + 3) % 8]));
-				deg = (double)(int16_t(receiving_serial_data[(i + 4) % 8] << 8 | receiving_serial_data[(i + 5) % 8]));
+				VX/*speed*/ = (double)(int16_t(receiving_serial_data[(i + 2) % 8] << 8 | receiving_serial_data[(i + 3) % 8]));
+				VY/*deg*/ = (double)(int16_t(receiving_serial_data[(i + 4) % 8] << 8 | receiving_serial_data[(i + 5) % 8]));
 				deg_s = (double)(int16_t(receiving_serial_data[(i + 6) % 8] << 8 | receiving_serial_data[(i + 7) % 8]));
 		     }
 			else if(can_data.rx_stdid == 0x200){
-				speed = (double)(int16_t(can_data.rx_data[0] << 8 | can_data.rx_data[1]));
-				deg = (double)(int16_t(can_data.rx_data[2] << 8 | can_data.rx_data[3]));
+				VX/*speed*/ = (double)(int16_t(can_data.rx_data[0] << 8 | can_data.rx_data[1]));
+				VY/*deg*/ = (double)(int16_t(can_data.rx_data[2] << 8 | can_data.rx_data[3]));
 				deg_s = (double)(int16_t(can_data.rx_data[4] << 8 | can_data.rx_data[5]));
 			}else{
-				speed = 0;
-				deg = 0;
+				VX/*speed*/ = 0;
+				Vy/*deg*/ = 0;
 				deg_s = 0;
 			}
 		}
@@ -40,8 +39,8 @@ void communication(){
 }
 
 void main_interrupt(){
-	vy = speed*cos(deg);
-	vx = speed*sin(deg);
+	vy = VX;//speed*cos(deg);
+	vx = VY;//speed*sin(deg);
 	vz = deg_s;
 	debugdata = asimawari.get_debug_data();
 	asimawari.turn(omuni4,vx,vy,vz,R_L/2,50);
