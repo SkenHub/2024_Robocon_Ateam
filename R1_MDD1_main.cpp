@@ -30,7 +30,7 @@ void communication(){
 				deg_s = (double)(int16_t(can_data.rx_data[4] << 8 | can_data.rx_data[5]));
 			}else{
 				VX/*speed*/ = 0;
-				Vy/*deg*/ = 0;
+				VY/*deg*/ = 0;
 				deg_s = 0;
 			}
 		}
@@ -39,8 +39,8 @@ void communication(){
 }
 
 void main_interrupt(){
-	vy = VX;//speed*cos(deg);
-	vx = VY;//speed*sin(deg);
+	vx = VX;//speed*cos(deg);
+	vy = VY;//speed*sin(deg);
 	vz = deg_s;
 	debugdata = asimawari.get_debug_data();
 	asimawari.turn(omuni4,vx,vy,vz,R_L/2,50);
