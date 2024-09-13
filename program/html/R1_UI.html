@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>button_test</title>
+    <title>R!_controller</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anta&display=swap">
     <style>
         body {
@@ -259,7 +259,6 @@
             width: 95px;
             height: 50px;
             top: 150px;
-            line-height: 1;
             border-style: solid;
             border-color: rgb(255, 255, 255);
             color: rgb(255, 255, 255);
@@ -274,6 +273,21 @@
 
         .position-y {
             left: 110px;
+        }
+
+        .mode_debug {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background-color: rgb(20, 203, 173);
+            top: 230px;
+            left: 430px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+            font-weight: 100px;
+            font-size: 50px;
+            line-height: 1.4;
+            z-index: 3;
         }
 
         .timer {
@@ -395,6 +409,7 @@
             <div class="button2" id="button2">2</div>
             <div class="button3" id="button3">3</div>
             <div class="robot" id="robot"></div>
+            <div class="mode_debug" id="mode_debug">0</div>
         </div>
     </div>
 
@@ -460,6 +475,7 @@
         const position_debug = document.getElementById("position_debug");
         const position_X = document.getElementById("position_x");
         const position_Y = document.getElementById("position_y");
+        const mode_debug = document.getElementById("mode_debug");
 
         const map = document.getElementById("map");
         const background = document.getElementById("background");
@@ -485,6 +501,7 @@
             timer.style.display = "none";
             position_debug.style.display = "none";
             map.style.display = "none";
+            mode_debug.style.display = "none";
             // イベントリスナー追加
             behavior_0.addEventListener("touchstart", Behavior_0);
             behavior_1.addEventListener("touchstart", Behavior_1);
@@ -540,6 +557,7 @@
             timer.style.display = "none";
             position_debug.style.display = "none";
             map.style.display = "none";
+            mode_debug.style.display = "none";
 
             button_1.style.backgroundColor = "rgb(114, 110, 110,0)"
             button[0] = 0;
@@ -561,6 +579,7 @@
             timer.style.display = "block";
             position_debug.style.display = "block";
             map.style.display = "block";
+            mode_debug.style.display = "block";
 
             background.style.borderColor = "rgb(0,0,255)";
             start_zone.style.backgroundColor = "rgb(0,0,255)";
@@ -573,6 +592,7 @@
             button_2.style.bottom = "200px";
             button_3.style.right = "400px";
             button_3.style.bottom = "50px";
+            mode_debug.style.left = "430px";
 
             color = 0;
         }
@@ -590,6 +610,7 @@
             timer.style.display = "block";
             position_debug.style.display = "block";
             map.style.display = "block";
+            mode_debug.style.display = "block";
 
             background.style.borderColor = "rgb(255,0,0)"
             start_zone.style.backgroundColor = "rgb(255,0,0)";
@@ -602,6 +623,7 @@
             button_2.style.bottom = "200px";
             button_3.style.right = "50px";
             button_3.style.bottom = "50px";
+            mode_debug.style.left = "0px";
 
             color = 1;
         }
@@ -841,6 +863,7 @@
             robot.style.transform = "rotate(" + position_direction + "deg)";
             position_X.innerHTML = "X: " + position_x;
             position_Y.innerHTML = "Y: " + position_y;
+            mode_debug.innerHTML = parseInt(dataArray[3]);
         }
 
 
