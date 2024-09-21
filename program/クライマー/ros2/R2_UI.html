@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>climber_controller</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anta&display=swap">
+    <style>
+        body {
+            background: rgb(0, 0, 0);
+            text-align: center;
+            font-family: "Anta";
+        }
+
+        .stop {
+            position: absolute;
+            top: 180px;
+            left: 20px;
+            width: 200px;
+            height: 70px;
+            line-height: 1.5;
+            font-weight: 900;
+            font-size: 50px;
+            background-color: rgb(255, 255, 0);
+        }
+
+        .button_color {
+            line-height: 3.3;
+            font-size: 31px;
+            font-weight: 900;
+        }
+
+        .home {
+            position: absolute;
+            top: 260px;
+            left: 20px;
+            width: 200px;
+            height: 70px;
+            line-height: 2;
+            font-weight: 900;
+            font-size: 35px;
+            background-color: rgb(0, 79, 227);
+        }
+
+        .blue {
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            top: 0;
+            right: 205px;
+            bottom: 0;
+            left: 0;
+            margin: auto;
+            background-color: rgb(0, 79, 227);
+        }
+
+        .red {
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 205px;
+            margin: auto;
+            background-color: rgb(231, 33, 0);
+        }
+
+        .debug {
+            position: absolute;
+            width: 200px;
+            height: 100px;
+            top: 200px;
+            left: 230px;
+            border-style: solid;
+            border-color: rgb(255, 255, 255);
+            line-height: 0.9;
+            font-size: 30px;
+            font-weight: 900;
+            color: rgb(255, 255, 255);
+        }
+
+        .run_mode {
+            position: absolute;
+            top: 20px;
+        }
+
+        .bucket_mode {
+            position: absolute;
+            top: 60px;
+        }
+
+        .To-do_list {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            top: 20px;
+            right: 10px;
+            border-style: solid;
+            border-color: rgb(255, 255, 255);
+            color: rgb(255, 255, 255);
+            line-height: 0.9;
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        .to-do_1 {
+            position: absolute;
+            top: 20px;
+            left: 0px;
+        }
+
+        .to-do_2 {
+            position: absolute;
+            top: 60px;
+            left: 0px;
+        }
+
+        .to-do_3 {
+            position: absolute;
+            top: 100px;
+            left: 0px;
+        }
+
+        .timer {
+            line-height: 0.9;
+            font-size: 70px;
+            font-weight: 900;
+        }
+
+        .time {
+            position: absolute;
+            background-color: rgb(20, 203, 173);
+            width: 315px;
+            height: 100px;
+            top: 20px;
+            left: 20px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+        }
+
+        .minute,
+        .second,
+        .milli {
+            position: absolute;
+            width: 35px;
+            height: 25px;
+            top: 40px;
+        }
+
+        .minute {
+            left: 20px;
+        }
+
+        .second {
+            left: 115px;
+        }
+
+        .milli {
+            left: 225px;
+        }
+
+        .timer-button {
+            position: absolute;
+            background-color: rgb(20, 203, 173);
+            width: 315px;
+            height: 50px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+            top: 122px;
+            left: 20px;
+            line-height: 1.1;
+            font-size: 50px;
+        }
+    </style>
+</head>
+
+<body id="all">
+    <!-- ボタンエリア -->
+    <div class="stop" id="stop">STOP</div>
+    <div class="button_color" id="button_color">
+        <div class="blue" id="blue">青チーム</div>
+        <div class="red" id="red">赤チーム</div>
+    </div>
+    <div class="home" id="home">color select</div>
+
+    <!-- デバック？-->
+    <div class="debug" id="debug">
+        <div class="run_mode" id="run_mode">速度: </div>
+        <div class="bucket_mode" id="bucket_mode">バケット: </div>
+    </div>
+
+    <!-- タイマーエリア -->
+    <div class="timer" id="timer">
+        <div class="time" id="time"></div>
+        <div class="minute" id="minute">00</div>
+        <div class="second" id="second">:00</div>
+        <div class="milli" id="milli">:00</div>
+        <div class="timer-button" id="timer-button">START</div>
+    </div>
+
+    <!-- やることリスト-->
+    <div class="To-do_list" id="To-do_list">
+        <div class="to-do_1">1: R1が動くことを祈る</div>
+        <div class="to-do_2">1: R1が動くことを祈る</div>
+        <div class="to-do_3">1: R1が動くことを祈る</div>
+    </div>
+
+    <script>
+        const ws = new WebSocket("ws://172.20.10.2:8000/ws");
+
+        let color = 0, STOP = 1, stop_count = 0, bucket,
+            minutes = 0, seconds = 0, millis = 0, interval = 0, count = 0,
+            rx, ry, lx, ly, r1, r2, l2, l1 = [0, 0, 0], l1_count = 0;
+
+        let Send_Data = "";
+
+        const all = document.getElementById("all");
+
+        const Stop = document.getElementById("stop");
+        const blue = document.getElementById("blue");
+        const red = document.getElementById("red");
+        const home = document.getElementById("home");
+
+        const debug = document.getElementById("debug");
+        const run_mode = document.getElementById("run_mode");
+        const bucket_mode = document.getElementById("bucket_mode");
+
+        const timer = document.getElementById("timer");
+        const time = document.getElementById("time");
+        const timer_button = document.getElementById("timer-button");
+        const minute = document.getElementById("minute");
+        const second = document.getElementById("second");
+        const milli = document.getElementById("milli");
+
+        const To_do_list = document.getElementById("To-do_list");
+
+        // 初期設定
+        function setup() {
+            all.style.backgroundColor = "rgb(0,0,0)";
+            Stop.style.display = "none";
+            home.style.display = "none";
+            timer.style.display = "none";
+            debug.style.display = "none";
+            To_do_list.style.display = "none";
+            // イベントリスナー追加
+
+            Stop.addEventListener("touchstart", all_stop);
+            blue.addEventListener("touchstart", Blue);
+            red.addEventListener("touchstart", Red);
+            home.addEventListener("touchstart", Home);
+            minute.addEventListener("touchstart", Timer_reset);
+            second.addEventListener("touchstart", Timer_reset);
+            milli.addEventListener("touchstart", Timer_reset);
+            timer_button.addEventListener("touchstart", Timer_button);
+        }
+
+
+        //チーム選択
+        function Home() {
+            blue.style.display = "block";
+            red.style.display = "block";
+            Stop.style.display = "none";
+            home.style.display = "none";
+            timer.style.display = "none";
+            debug.style.display = "none";
+            To_do_list.style.display = "none";
+        }
+
+        //青チーム
+        function Blue() {
+            blue.style.display = "none";
+            red.style.display = "none";
+            Stop.style.display = "block";
+            home.style.display = "block";
+            timer.style.display = "block";
+            debug.style.display = "block";
+            To_do_list.style.display = "block";
+
+            home.style.backgroundColor = "rgb(0, 79, 227)";
+            color = 0;
+        }
+
+
+        //赤チーム
+        function Red() {
+            blue.style.display = "none";
+            red.style.display = "none";
+            Stop.style.display = "block";
+            home.style.display = "block";
+            timer.style.display = "block";
+            debug.style.display = "block";
+            To_do_list.style.display = "block";
+
+            home.style.backgroundColor = "rgb(231, 33, 0)"
+            color = 1;
+        }
+
+        //ストップ
+        function all_stop() {
+            stop_count = stop_count + 1;
+            if ((stop_count % 2) == true) {
+                Stop.innerHTML = "START";
+                Stop.style.backgroundColor = "rgb(0,255,0)"
+                STOP = 0;
+            } else if ((stop_count % 2) == false) {
+                Stop.innerHTML = "STOP";
+                Stop.style.backgroundColor = "rgb(255,255,0)"
+                STOP = 1;
+            }
+        }
+
+        //タイマー
+        //タイマーリセット
+        function Timer_reset() {
+            clearInterval(interval);
+            minutes = 0;
+            seconds = 0;
+            millis = 0;
+            milli.innerHTML = ":00";
+            second.innerHTML = ":00";
+            minute.innerHTML = "00";
+        }
+
+        // タイマー開始、停止
+        function Timer_button() {
+            if (count % 2 === 0) {
+                interval = setInterval(updateTimer, 10);
+                timer_button.innerHTML = "STOP";
+            } else {
+                clearInterval(interval);
+                timer_button.innerHTML = "START";
+            }
+            count++;
+        }
+
+
+        // タイマー更新
+        function updateTimer() {
+            millis++;
+            if (millis === 100) {
+                seconds++;
+                millis = 0;
+            }
+            if (seconds === 60) {
+                minutes++;
+                seconds = 0;
+            }
+            milli.innerHTML = ":" + millis.toString().padStart(2, "0");
+            second.innerHTML = ":" + seconds.toString().padStart(2, "0");
+            minute.innerHTML = minutes.toString().padStart(2, "0");
+        }
+
+        function updateGamepadValues() {
+            var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+            var gamepad = gamepads[0]; // 0番目のゲームパッドを取得
+
+            if (gamepad) {
+                // ジョイスティックの値を取得
+                lx = gamepad.axes[0] * 100 + 100;
+                ly = gamepad.axes[1] * -100 + 100;
+                rx = gamepad.axes[2] * 100 + 100;
+                ry = gamepad.axes[3] * -100 + 100;
+
+                l1[0] = gamepad.buttons[4].pressed ? 1 : 0;
+                r1 = gamepad.buttons[5].pressed ? 1 : 0;
+                l2 = gamepad.buttons[6].pressed ? 1 : 0;
+                r2 = gamepad.buttons[7].pressed ? 1 : 0;
+
+
+                if (l1[1] == 0 && l1[0] == 1) l1_count++;
+                if ((l1_count % 2) == true) {
+                    run_mode.innerHTML = "速度: 速";
+                    l1[2] = 1;
+                } else if ((l1_count % 2) == false) {
+                    run_mode.innerHTML = "速度: 遅";
+                    l1[2] = 0;
+                }
+                l1[1] = l1[0];
+
+                if (r1 == 1) bucket = 3;
+                else if (r2 == 1) bucket = 1;
+                else if (l2 == 1) bucket = 2;
+
+                if (bucket == 1) bucket_mode.innerHTML = "バケット: 上";
+                if (bucket == 2) bucket_mode.innerHTML = "バケット: 下";
+                if (bucket == 3) bucket_mode.innerHTML = "バケット: 中";
+            }
+        }
+
+        //通信
+        setInterval(() => {
+            Send_Data = `${rx.toFixed(0)},${lx.toFixed(0)},${ly.toFixed(0)},${color},${STOP},${r2},${l2},${r1},${l1[2]}`;
+            ws.send(Send_Data);
+        }, 0);
+
+        setInterval(updateGamepadValues, 0);
+
+        // 初期設定関数の呼び出し
+        setup();
+    </script>
+</body>
+
+</html>
