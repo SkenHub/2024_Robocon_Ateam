@@ -1,5 +1,5 @@
 #include "mbed.h"
-#include "pid.hpp"
+#include "pid.h"
 
 DigitalOut led(LED1);
 DigitalOut solenoid1(PB_6); // 電磁弁1制御ピン
@@ -34,7 +34,7 @@ void control_solenoid(uint8_t cmd)
 {
     switch (cmd)
     {
-    case 1:
+    case 1: // 電磁弁1(R100)オン
         action_number = 1;
         solenoid1 = 1;
         solenoid2 = 0;
@@ -43,7 +43,7 @@ void control_solenoid(uint8_t cmd)
         led = 1;
         break;
 
-    case 2:
+    case 2: // 電磁弁2(巻き取り)をオン
         action_number = 2;
         solenoid1 = 1;
         solenoid2 = 1;
@@ -52,16 +52,28 @@ void control_solenoid(uint8_t cmd)
         led = 0;
         break;
 
-    case 3:
-        action_number = 3;
-        solenoid1 = 1;
-        solenoid2 = 1;
-        solenoid3 = 1;
-        solenoid4 = 1;
-        led = 1;
-        break;
-
-    case 4:
+    case 3: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
+        if (d3 == 1)
+        {
+            action_number = 3;
+            solenoid1 = 1;
+            solenoid2 = 1;
+            solenoid3 = 0;
+            solenoid4 = 0;
+            led = 1;
+            break;
+        }
+        else
+        {
+            action_number = 3;
+            solenoid1 = 1;
+            solenoid2 = 1;
+            solenoid3 = 1;
+            solenoid4 = 1;
+            led = 1;
+            break;
+        }
+    case 4: // 電磁弁2(巻き取り) 電磁弁3(加速)をオフ
         action_number = 4;
         solenoid1 = 1;
         solenoid2 = 0;
@@ -70,7 +82,7 @@ void control_solenoid(uint8_t cmd)
         led = 0;
         break;
 
-    case 5:
+    case 5: // モータ1(パワウィンド)を回転、リミット1(スライダ)に当たると停止
         action_number = 5;
         solenoid1 = 1;
         solenoid2 = 0;
@@ -79,7 +91,7 @@ void control_solenoid(uint8_t cmd)
         led = 1;
         break;
 
-    case 6:
+    case 6: // 電磁弁4(ロック)をオフ
         action_number = 6;
         solenoid1 = 1;
         solenoid2 = 0;
@@ -88,7 +100,7 @@ void control_solenoid(uint8_t cmd)
         led = 0;
         break;
 
-    case 7:
+    case 7: // 手動で装填
         action_number = 7;
         solenoid1 = 1;
         solenoid2 = 0;
@@ -97,30 +109,44 @@ void control_solenoid(uint8_t cmd)
         led = 1;
         break;
 
-    case 8:
+    case 8: // 電磁弁2(巻き取り)をオン
         action_number = 8;
         solenoid1 = 1;
-        solenoid2 = 0;
+        solenoid2 = 1;
         solenoid3 = 0;
         solenoid4 = 0;
         led = 0;
         break;
 
-    case 9:
-        action_number = 9;
-        solenoid1 = 1;
-        solenoid2 = 1;
-        solenoid3 = 0;
-        solenoid4 = 0;
-        led = 1;
+    case 9: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
+        if (d3 == 1)
+        {
+            action_number = 9;
+            solenoid1 = 1;
+            solenoid2 = 1;
+            solenoid3 = 0;
+            solenoid4 = 0;
+            led = 1;
+            break;
+        }
+        else
+        {
+            action_number = 9;
+            solenoid1 = 1;
+            solenoid2 = 1;
+            solenoid3 = 1;
+            solenoid4 = 1;
+            led = 1;
+            break;
+        }
         break;
 
-    case 10:
+    case 10: // すべてOFF
         action_number = 10;
-        solenoid1 = 1;
-        solenoid2 = 1;
-        solenoid3 = 1;
-        solenoid4 = 1;
+        solenoid1 = 0;
+        solenoid2 = 0;
+        solenoid3 = 0;
+        solenoid4 = 0;
         led = 1;
         break;
 
@@ -148,10 +174,28 @@ void check_can_message()
         }
         else if (msg.id == id_vel)
         {
-            // id_vel メッセージの受信
-            Vx = (msg.data[0] << 8) | msg.data[1];    // Vx = 上位バイト << 8 | 下位バイト
-            Vy = (msg.data[2] << 8) | msg.data[3];    // Vy = 上位バイト << 8 | 下位バイト
-            omega = (msg.data[4] << 8) | msg.data[5]; // ω = 上位バイト << 8 | 下位バイト
+            if (command_number == 3 || command_number == 9)
+            {
+                if (d3 == 1)
+                {
+                    // id_vel メッセージの受信
+                    Vx = 0;
+                    Vy = 1000;
+                    omega = 0;
+                }
+                else
+                {
+                    Vx = 0;
+                    Vy = 0;
+                    omega = 0;
+                }
+            }
+            else
+            {
+                Vx = (msg.data[0] << 8) | msg.data[1];    // Vx = 上位バイト << 8 | 下位バイト
+                Vy = (msg.data[2] << 8) | msg.data[3];    // Vy = 上位バイト << 8 | 下位バイト
+                omega = (msg.data[4] << 8) | msg.data[5]; // ω = 上位バイト << 8 | 下位バイト
+            }
         }
         else if (msg.id == id_pos)
         {
