@@ -28,7 +28,8 @@ uint8_t d2 = 0;
 uint8_t d3 = 0;
 uint8_t a = 0;
 uint8_t b = 0;
-uint8_t flag = 0;
+uint8_t flag1 = 0;
+uint8_t flag2 = 0;
 
 MotorDriver motor1(PA_8, PA_11);
 MotorDriver motor2(PB_14, PB_15);
@@ -143,30 +144,36 @@ void control_motor(uint8_t cmd)
 {
     switch (cmd)
     {
-    case 1:
+    case 1: // 電磁弁1(R100)オン
         led = 1;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
         break;
 
-    case 2:
+    case 2: // 電磁弁2(巻き取り)をオン
         led = 0;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
         break;
 
-    case 3:
+    case 3: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
         led = 1;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
         break;
 
-    case 4:
-        if (flag == 0)
+    case 4: // 電磁弁2(巻き取り) 電磁弁3(加速)をオフ
+        led = 1;
+        motor1.setSpeed(0);
+        motor2.setSpeed(0);
+        break;
+
+    case 5: // モータ1(パワウィンド)を回転、リミット1(スライダ)に当たると停止
+        if (flag1 == 0)
         {
             if (d1 == 1)
             {
-                motor1.setSpeed(50);
+                motor1.setSpeed(80);
                 motor2.setSpeed(0);
                 led = 0;
                 break;
@@ -175,7 +182,7 @@ void control_motor(uint8_t cmd)
             {
                 motor1.setSpeed(0);
                 motor2.setSpeed(0);
-                flag = 1;
+                flag1 = 1;
                 led = 0;
                 break;
             }
@@ -187,41 +194,30 @@ void control_motor(uint8_t cmd)
             led = 0;
             break;
         }
-    case 5:
+    case 6: // 電磁弁4(ロック)をオフ
         led = 1;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
         break;
 
-    case 6:
-        if (d2 == 1)
-        {
-            motor2.setSpeed(-20);
-            motor1.setSpeed(0);
-            led = 0;
-            break;
-        }
-        else
-        {
-            motor2.setSpeed(0);
-            motor1.setSpeed(0);
-            led = 0;
-            break;
-        }
-
-    case 7:
-        led = 1;
-        motor2.setSpeed(20);
+    case 7: // 手動で装填
+        led = 0;
         motor1.setSpeed(0);
+        motor2.setSpeed(0);
+        break;
+    case 8: // 電磁弁2(巻き取り)をオン
+        led = 1;
+        motor1.setSpeed(0);
+        motor2.setSpeed(30);
         break;
 
-    case 8:
+    case 9: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
         led = 0;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
         break;
 
-    case 9:
+    case 10: // すべてOFF
         led = 1;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
