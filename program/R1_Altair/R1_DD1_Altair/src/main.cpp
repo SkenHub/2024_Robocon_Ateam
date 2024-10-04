@@ -100,16 +100,16 @@ void control_solenoid(uint8_t cmd)
         led = 0;
         break;
 
-    case 7: // 手動で装填
+    case 7: // 電磁弁2(巻き取り)をオン
         action_number = 7;
         solenoid1 = 1;
-        solenoid2 = 0;
+        solenoid2 = 1;
         solenoid3 = 0;
         solenoid4 = 0;
         led = 1;
         break;
 
-    case 8: // 電磁弁2(巻き取り)をオン
+    case 8: // モータ逆回転
         action_number = 8;
         solenoid1 = 1;
         solenoid2 = 1;
@@ -118,7 +118,16 @@ void control_solenoid(uint8_t cmd)
         led = 0;
         break;
 
-    case 9: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
+    case 9: // 手動で装填
+        action_number = 8;
+        solenoid1 = 1;
+        solenoid2 = 1;
+        solenoid3 = 0;
+        solenoid4 = 0;
+        led = 0;
+        break;
+
+    case 10: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
         if (d3 == 1)
         {
             action_number = 9;
@@ -141,7 +150,7 @@ void control_solenoid(uint8_t cmd)
         }
         break;
 
-    case 10: // すべてOFF
+    case 11: // すべてOFF
         action_number = 10;
         solenoid1 = 0;
         solenoid2 = 0;
@@ -174,14 +183,13 @@ void check_can_message()
         }
         else if (msg.id == id_vel)
         {
-            if (command_number == 3 || command_number == 9)
+            if (command_number == 3 || command_number == 10)
             {
                 if (d3 == 1)
                 {
-                    // id_vel メッセージの受信
-                    Vx = 0;
-                    Vy = 1000;
-                    omega = 0;
+                    Vx = (msg.data[0] << 8) | msg.data[1];    // Vx = 上位バイト << 8 | 下位バイト
+                    Vy = (msg.data[2] << 8) | msg.data[3];    // Vy = 上位バイト << 8 | 下位バイト
+                    omega = (msg.data[4] << 8) | msg.data[5]; // ω = 上位バイト << 8 | 下位バイト
                 }
                 else
                 {
