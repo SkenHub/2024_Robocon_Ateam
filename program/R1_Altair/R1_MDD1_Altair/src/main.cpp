@@ -171,9 +171,9 @@ void control_motor(uint8_t cmd)
     case 5: // モータ1(パワウィンド)を回転、リミット1(スライダ)に当たると停止
         if (flag1 == 0)
         {
-            if (d1 == 1)
+            if (d1 == 0)
             {
-                motor1.setSpeed(80);
+                motor1.setSpeed(40);
                 motor2.setSpeed(0);
                 led = 0;
                 break;
@@ -200,24 +200,53 @@ void control_motor(uint8_t cmd)
         motor2.setSpeed(0);
         break;
 
-    case 7: // 手動で装填
+    case 7: // // 電磁弁2(巻き取り)をオン
         led = 0;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
         break;
-    case 8: // 電磁弁2(巻き取り)をオン
+    case 8: // モーターを一瞬逆回転
+        if (flag1 == 0)
+        {
+
+            motor1.setSpeed(-40);
+            motor2.setSpeed(0);
+            led = 0;
+            auto now1 = HighResClock::now();
+            static auto pre1 = now1;
+            if (now1 - pre1 > 800ms)
+            {
+                flag1 = 1;
+                break;
+            }
+            else
+            {
+                flag1 = 0;
+                pre1 = now1;
+                break;
+            }
+        }
+        else
+        {
+            motor1.setSpeed(0);
+            motor2.setSpeed(0);
+            led = 0;
+            break;
+        }
+
+    case 9: // 手動で装填
         led = 1;
         motor1.setSpeed(0);
-        motor2.setSpeed(30);
+        motor2.setSpeed(0);
         break;
 
-    case 9: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
+    case 10: // リミット３に押されるまで前進，押されたら停止＆電磁弁3(加速) 電磁弁4(ロック)をオン
         led = 0;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
         break;
 
-    case 10: // すべてOFF
+    case 11: // すべてOFF
         led = 1;
         motor1.setSpeed(0);
         motor2.setSpeed(0);
